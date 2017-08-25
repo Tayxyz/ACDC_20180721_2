@@ -1,0 +1,4 @@
+*.pyc
+modules_old/
+logforid*
+.idea/
