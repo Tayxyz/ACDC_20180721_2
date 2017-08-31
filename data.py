@@ -210,7 +210,7 @@ class data():
 
     def final_result(self,pf,log):
         logV(str(self.id),pf,log)
-        DATA.result_queue.put(str(self.id) + ';'+pf)
+        DATA.result_queue.put(str(self.id) + '&'+pf+ '&\4*')
         pass
 
     def end_process(self):
@@ -239,6 +239,8 @@ class data():
         cost = cur - data.__time
         data.__time = cur
         self.full_info.append(format_content + ',' + '%.2f' % cost)
+        with open(DATA.csvfilepath,'a') as fa:
+            fa.write(format_content + ',' + '%.2f\n' % cost)
         if csv:
             self.csv.append(format_content)
         # if ui:

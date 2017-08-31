@@ -30,5 +30,11 @@ class script():
         except:
             return []
 
+    def get_monopoly(self):
+        try:
+            return self.script_obj['monopoly']
+        except:
+            return []
+
     def get_process(self):
         return self.script_obj['process']

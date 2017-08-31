@@ -11,20 +11,22 @@ VERSION = '1.0.0.0'
 
 
 class worker(multiprocessing.Process):
-    def __init__(self,_id, isn,result_queue,share_dic,locks,barriers):
-        print ('work init:', os.getpid(),id(DATA))
+    def __init__(self,_id, isn,result_queue,share_dic,locks,barriers,s2c_io,c2s_io):
+        #print ('work init:', os.getpid(),id(DATA),_id)
         multiprocessing.Process.__init__(self)
         self.id = _id
         self.isn  =isn
 
         self.result_queue = result_queue
+        self.s2c_io=s2c_io
+        self.c2s_io=c2s_io
         self.share_dic=share_dic
         self.locks=locks
         self.barriers=barriers
 
     def run(self):
         try:
-            print ('work run:', os.getpid(),id(DATA))
+            #print ('work run:', os.getpid(),id(DATA))
             proc_name = self.name
 
             DATA.start_time = t0 = time.time()
@@ -36,7 +38,14 @@ class worker(multiprocessing.Process):
             DATA.logfilepath = 'logforid' + str(self.id)
             with open(DATA.logfilepath, 'w') as fw:
                 fw.write('START TEST:\n')
+                fw.write(DATA.isn+'\n')
+
+            DATA.csvfilepath = 'csvforid' + str(self.id)
+            with open(DATA.csvfilepath, 'w') as fw:
+                fw.write('')
             DATA.result_queue = self.result_queue
+            DATA.s2c_io = self.s2c_io
+            DATA.c2s_io = self.c2s_io
             DATA.locks = self.locks
             DATA.barriers = self.barriers
 
@@ -55,6 +64,7 @@ class worker(multiprocessing.Process):
             process=self.script.get_process()
             steps=len(process)
             logV('process len=',steps)
+            self.result_queue.put(str(self.id) + '&'+str(steps)+'&t&\1*')
             skip_flag = False
             for step in process:
                 logV('\n#####', step['name'], '#####')
@@ -67,7 +77,7 @@ class worker(multiprocessing.Process):
                         pass
                     if canskip:
                         print ('skip')
-                        self.result_queue.put(str(self.id) + '>step<')
+                        self.result_queue.put(str(self.id) + '&p&\2*')
                         continue
                 t00 = time.time()
                 DATA.settime()
@@ -85,7 +95,7 @@ class worker(multiprocessing.Process):
                 except:
                     pass
 
-                self.result_queue.put(str(self.id)+ '>step<')
+                self.result_queue.put(str(self.id)+ '&p&\2*')
 
 
 
@@ -105,4 +115,4 @@ class worker(multiprocessing.Process):
             DATA.end_content()
             logV( '\nTotal cost:', time.time() - t0)
             DATA.end_process()
-            self.result_queue.put(str(self.id) + '>finish<')
+            self.result_queue.put(str(self.id) + '&h&\3*')

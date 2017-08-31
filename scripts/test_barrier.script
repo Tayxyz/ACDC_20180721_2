@@ -1,7 +1,7 @@
 {
 	//init create all the obj
 	"initial": [
-		{"obj": "rs232","class": "COMMON.rs232_interface.RS232","COM":"/dev/tty.usbmodem1412"}
+		{"obj": "rs232","class": "COMMON.rs232_interface.RS232","COM":"COM4"}
 	],
 
 	"locks":[
@@ -39,6 +39,9 @@
             "cmd":"root\r","end":"# ","has":"#","timeout":"1","lock":"lock1"},
 
         {"name":"TEST_LOCK3","obj" : "rs232","action": "sendCmd",
+            "cmd":"root\r","end":"# ","has":"#","timeout":"1","lock":"lock1"},
+
+        {"name":"TEST_FAKE","obj" : "rs232","action": "fakeitem",
             "cmd":"root\r","end":"# ","has":"#","timeout":"1","lock":"lock1"},
 
 	    {"name":"TEST_BARRIER3_LIKE_FIXTUROUT","obj" : "rs232","action": "sendCmd",

@@ -64,35 +64,10 @@ class RS232:
             timeout=int(argv['timeout'].encode('ascii'))
         except:
             timeout=1
-        try:
-            lock=DATA.locks[argv['lock']]
-        except:
-            lock=None
-        try:
-            barrier=DATA.barriers[argv['barrier']]
-        except:
-            barrier=None
+
         logV(argv)
-        if lock:
-            with lock:
-                self._connect()
-                rt=self.wr(cmd,end,has,timeout)
-                self.disconnect()
-        elif barrier:
-            try:
-                if barrier.acquire():
-                    logV('barrier.acquire')
-                    self._connect()
-                    rt = self.wr(cmd, end, has, timeout)
-                    self.disconnect()
-                    #print 'i do it'
-                else:
-                    rt='barrier bypass'
-                    #print DATA.id,'barrier bypass'
-            finally:
-                barrier.release()
-        else:
-            rt = self.wr(cmd, end, has, timeout)
+
+        rt = self.wr(cmd, end, has, timeout)
         logV(rt)
 
         return rt

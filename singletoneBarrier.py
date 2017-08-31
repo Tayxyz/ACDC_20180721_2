@@ -11,6 +11,7 @@ class BARRIER:
         with self.lock:
             self.i.value += 1
             if self.n==self.i.value:
+                self.i.value=0
                 return True
 
         #print self.i.value,self.n
