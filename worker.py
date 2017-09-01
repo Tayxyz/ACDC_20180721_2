@@ -26,9 +26,6 @@ class worker(multiprocessing.Process):
 
     def run(self):
         try:
-            #print ('work run:', os.getpid(),id(DATA))
-            proc_name = self.name
-
             DATA.start_time = t0 = time.time()
 
             DATA.id = self.id

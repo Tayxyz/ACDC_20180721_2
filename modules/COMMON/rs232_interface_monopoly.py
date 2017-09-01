@@ -15,8 +15,10 @@ class RS232:
         try:
             self.com = serial.Serial(self.comnub, 115200, timeout=0)
             logV(self.comnub, 'connected')
+            return (True, '')
         except Exception, e:
             logE(Exception, e)
+            return (False, '')
 
     def connect(self, argv=None):
         try:
@@ -29,15 +31,17 @@ class RS232:
                 logV('with lock')
                 #self._connect()
         else:
-            self._connect()
-            return True
+            return self._connect()
+
 
 
     def disconnect(self, argv=None):
         try:
             self.com.close()
+            return (True, '')
         except Exception, e:
             print Exception, e
+            return (False, '')
 
     def wr(self, cmd, end, has='', timeout=1):
         try:

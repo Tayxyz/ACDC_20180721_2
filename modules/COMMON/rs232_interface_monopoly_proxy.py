@@ -5,9 +5,10 @@ from data import *
 class RS232:
     def __init__(self, argv):
         try:
-            self.comnub = argv['COM'].encode("ascii")
-            logV (self.comnub)
+            #self.comnub = argv['COM'].encode("ascii")
+            #logV (self.comnub)
             #self.connect()
+            pass
         except Exception, e:
             logE(Exception, e)
 
@@ -31,18 +32,26 @@ class RS232:
                     rt= DATA.s2c_io.get()
 
                 else:
-                    rt='barrier bypass'
+                    rt=(True,'barrier bypass')
                     #print DATA.id,'barrier bypass'
             finally:
                 barrier.release()
 
         logV(rt)
+        if (rt[0] == True):
+            DATA.op(argv['name']+',0,PASS,NA,NA')
+        else:
+            DATA.op(argv['name'] + ',1,FAIL,NA,NA')
         return rt
 
     def fakeitem(self,argv):
         for i in range(2):
             logV('fake log')
-            DATA.op('FAKEITEM,0,0,NA,NA')
+            import  random
+            if random.random()>0.01:
+                DATA.op('FAKEITEM,0,0,NA,NA')
+            else:
+                DATA.op('FAKEITEM,1,BAD,NA,NA')
             time.sleep(0.5)
 
 
