@@ -1,0 +1,33 @@
+{
+	//init create all the obj
+	"initial": [
+	    {"obj": "basic_info","class": "COMMON.basic_info.BasicInfo"},
+		{"obj": "sfis","class": "SFIS.SFIS.SFIS"}
+	],
+
+	"locks":[
+	    {"name":"lockSFIS"}
+	],
+
+	"barriers":[
+	    {"name":"barrier1"},
+	    {"name":"barrier2"},
+	    {"name":"barrier3"},
+	    {"name":"barrierForSomething"}
+	],
+
+	"process":[
+	    {"name":"BASIC_INFO","obj" : "basic_info","action": "basic_info"},
+	    {"name":"SFIS_LOGIN_DB","obj" : "sfis","action": "SFIS_LOGIN_DB"},
+	    {"name":"SFIS_STATION_INPUT_CHECK","obj" : "sfis","action": "SFIS_CHECK_ROUTE","failstop":"YES1","lock":"lockSFIS"},
+	    {"name":"TEST_READ_FACTORY_CONFIG_MLB","obj" : "sfis","action": "TEST_READ_FACTORY_CONFIG_MLB"},
+	    {"name":"BUILD_PHASE","obj" : "sfis","action": "BUILD_PHASE"},
+	    //6low wifi mac
+        {"name":"TEST_GET_6LOWPAN_MAC","obj" : "sfis","action": "TEST_GET_6LOWPAN_MAC"},
+        {"name":"TEST_GET_WIFI_MAC","obj" : "sfis","action": "TEST_GET_WIFI_MAC"},
+
+        {"name":"SFIS_UPLOAD_TEST_RESULT","obj" : "sfis","action": "SFIS_WRITE_RESULT","noskip":"YES"},
+        {"name":"SFIS_LOGOUT_DB","obj" : "sfis","action": "SFIS_LOGOUT_DB","noskip":"YES"},
+        {"name":"END_STEPS","obj" : "basic_info","action": "end_steps","noskip":"YES"}
+	]
+}
