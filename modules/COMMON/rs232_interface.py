@@ -70,6 +70,21 @@ class RS232:
             logE(Exception, e)
             return False, e
 
+    def wr_length(self, cmd, length, has='', timeout=1):
+        try:
+            self.com.readall()
+            self.com.write(cmd)
+            buf = ''
+            t0 = time.time()
+            while time.time() - t0 < timeout:
+                buf += self.com.readall()
+                if len(buf)==length and buf.find(has) >= 0:
+                    return True, buf
+            return False, buf
+        except Exception, e:
+            logE(Exception, e)
+            return False, e
+
     def sendHexCmad(self,argv):
         hexcmds=argv['cmd'].split()
         cmds=''
@@ -123,7 +138,7 @@ class RS232:
         except:
             timeout=1
 
-        rt,v = self.wr(cmds, end, has, timeout)
+        rt,v = self.wr_length(cmds, 9, has, timeout)
         tempv=-99
 
         try:
@@ -195,6 +210,13 @@ class RS232:
     def fakeitem(self,argv):
         for i in range(2):
             logV('fake log')
+            DATA.op('FAKEITEM,0,0,N/A,N/A')
+            DATA.op('INT_PASS,0,12,N/A,N/A')
+            DATA.op('INT_FAILUL,0,12,11,N/A')
+            DATA.op('INT_FAILLL,0,13,N/A,14')
+            DATA.op('F_PASS,0,12.44,13.5,10.9')
+            DATA.op('F_FAILUL,0,12.3,11.9,N/A')
+            DATA.op('F_FAILLL,0,13.4,N/A,14.9')
             DATA.op('FAKEITEM,0,0,N/A,N/A')
             time.sleep(0.5)
 

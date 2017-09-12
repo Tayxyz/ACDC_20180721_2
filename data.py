@@ -27,6 +27,7 @@ class data():
         self.error_code=''
         self.logStreamData = ''
         self.ble_mac='31:38:42:30:43:39'
+        self.getlimits()
 
     def __new__(cls, *args, **kwargs):
         if not cls.__instance:
@@ -220,6 +221,27 @@ class data():
     def settime(self):
         data.__time = time.time()
 
+    def getlimits(self):
+        self.limits={}
+        try:
+            with open('limits.csv') as f:
+                for line in f:
+                    items=line.strip().split(',')
+                    if len(items)!=5:
+                        continue
+                    try:
+                        self.limits[items[0]+'_UCL']=float(items[3])
+                    except:
+                        pass
+                    try:
+                        self.limits[items[0]+'_LCL']=float(items[4])
+                    except:
+                        pass
+        except:
+            print self.limits
+            pass
+
+
     def op(self, format_content, ui=True, csv=True, ):
         logV( format_content)
         items = format_content.split(',')
@@ -229,6 +251,20 @@ class data():
             if len(items) != 5:
                 logE( 'output error! Please check!')
                 return
+
+        ###try to find limits if 0####
+        items[2]=items[2].replace('"','')
+        if items[1].strip() == '0':
+            if items[0]+'_UCL' in self.limits.keys():
+                items[3]=str(self.limits[items[0]+'_UCL'])
+                if float(items[2])>self.limits[items[0]+'_UCL']:
+                    items[1]='1'
+            if items[0]+'_LCL' in self.limits.keys():
+                items[4]=str(self.limits[items[0]+'_LCL'])
+                if float(items[2])<self.limits[items[0]+'_LCL']:
+                    items[1]='1'
+
+
         if items[1].strip() == '1':
             self.totalfails += 1
             self.currentpass = False
@@ -242,6 +278,7 @@ class data():
         cur = time.time()
         cost = cur - data.__time
         data.__time = cur
+        format_content=','.join(items)
         self.full_info.append(format_content + ',' + '%.2f' % cost)
         with open(DATA.csvfilepath,'a') as fa:
             fa.write(format_content + ',' + '%.2f\n' % cost)

@@ -66,9 +66,9 @@ This is the core testing Algorithm.
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import scipy as sp
-import StringIO
+#import scipy as sp
 from scipy import optimize
+import StringIO
 
 INVALID_NUM = -999
 def findMaxPointsForFit(x_axis, y_axis):
@@ -81,7 +81,7 @@ def findMaxPointsForFit(x_axis, y_axis):
   while not isFitMaximized:
     try:
 #       print "On this iteration: ", end[maxIndx]
-      popt, pcov = sp.optimize.curve_fit(expfunc, x_axis[0:end[maxIndx]], y_axis[0:end[maxIndx]] , p0=(-1, 1e-6, 1))
+      popt, pcov = optimize.curve_fit(expfunc, x_axis[0:end[maxIndx]], y_axis[0:end[maxIndx]] , p0=(-1, 1e-6, 1))
       foundSolution = True
       if (foundSolution and rateToFindFit == -1) or (foundSolution and maxIndx==0):
 #         print "GOT THE MAXIMUM"
@@ -103,7 +103,7 @@ def findMaxPointsForFit(x_axis, y_axis):
 
 def findBestExpFit (x_axis, y_axis):
   maxIndex = findMaxPointsForFit(x_axis,y_axis)
-  popt, pcov = sp.optimize.curve_fit(expfunc, x_axis[0:maxIndex], y_axis[0:maxIndex] , p0=(-1, 1e-6, 1))
+  popt, pcov = optimize.curve_fit(expfunc, x_axis[0:maxIndex], y_axis[0:maxIndex] , p0=(-1, 1e-6, 1))
   return popt, pcov , maxIndex
 
 def getSteadyState (data, numOfLastPoints = 5):
@@ -172,7 +172,7 @@ def dtsAlgo(df, stepStartTime = '0', stepEndTime = '-1'):
     startIndex = getIndexOfRaise(totalMainSensorValues)    
   if(stepEndTime not in '-1'):
     endIndex = int(df[df['Time'] == stepEndTime].index.tolist()[0])  
-   
+  
   timeValue = np.array((df['Time']), dtype=float)
   #   timeStep = timeValue[3]-timeValue[2]
   totalMainSensorValues = np.array((df['MainTempSensor']), dtype=float)
@@ -242,33 +242,33 @@ def dtsAlgo(df, stepStartTime = '0', stepEndTime = '-1'):
   # Constant for function: a*np.exp(c*x)+d
 
   output_dict = {}
-  output_dict["IDLE_TIME"] = round(float(idleTime),3)
-  output_dict["IDLE_TIME_TEMP_RISE"] = round(float(idleTimeTemepratureRise),3)
-  output_dict["EXP_CURVE_CONSTANT_A"] = popt[0]
-  output_dict["EXP_CURVE_CONSTANT_B"] = popt[1]
-  output_dict["EXP_CURVE_CONSTANT_C"] = popt[2]
-  output_dict["RAW_STEADY_STATE_VALUE"] = round(rawTemp_ss,3)
-  output_dict["RAW_TIME_CONSTANT"] = round(rawTemp_tc,3)
-  output_dict["RAW_SETTLE_TIME"] = round(rawTemp_st,3)
-  output_dict["COMP_STEADY_STATE_VALUE"] = round(compTemp_ss,3)
-  output_dict["COMP_TIME_CONSTANT"] = round(compTemp_tc,3)
-  output_dict["COMP_SETTLE_TIME"] = round(compTemp_st,3)
-  output_dict["HEATER_PLATE_STD_DEV"] = round(np.std(heaterValues),3)
-  output_dict["HEATER_PLATE_MAX"] = round(np.max(heaterValues),3)
-  output_dict["HEATER_PLATE_MIN"] = round(np.min(heaterValues),3)
-  output_dict["AMBIENT_STD_DEV"] = round(np.std(ambientValues),3)
-  output_dict["AMBIENT_MAX"] = round(np.max(ambientValues),3)
-  output_dict["AMBIENT_MIN"] = round(np.min(ambientValues),3)
-  output_dict["APPLIED_STEP"] = round(np.mean(heaterValues)-np.mean(ambientValues),3)
-  output_dict["PERCEIVED_STEP"] = round(totalMainSensorValues[len(totalMainSensorValues)-1]-totalMainSensorValues[0],3)
-  output_dict["INTERNAL_THERM_CONVERTED"] = internalThermValues
-  output_dict["TMP112_FINAL_VALUE"] = round(totalMainSensorValues[len(totalMainSensorValues)-1],3)
-  output_dict["TMP112_MAX"] = round(np.max(totalMainSensorValues),3)
-  output_dict["TMP112_MIN"] = round(np.min(totalMainSensorValues),3)
-  output_dict["TMP112_STARTING_VALUE"] = round(totalMainSensorValues[0],3)
+  output_dict["TEST_TEMPERATURE_TMP112_IDLE_TIME"] = round(float(idleTime),3)
+  output_dict["TEST_TEMPERATURE_TMP112_IDLE_TIME_TEMP_RISE"] = round(float(idleTimeTemepratureRise),3)
+  output_dict["TEST_TEMPERATURE_TMP112_EXP_CURVE_CONSTANT_A"] = popt[0]
+  output_dict["TEST_TEMPERATURE_TMP112_EXP_CURVE_CONSTANT_B"] = popt[1]
+  output_dict["TEST_TEMPERATURE_TMP112_EXP_CURVE_CONSTANT_C"] = popt[2]
+  output_dict["TEST_TEMPERATURE_TMP112_RAW_STEADY_STATE_VALUE"] = round(rawTemp_ss,3)
+  output_dict["TEST_TEMPERATURE_TMP112_RAW_TIME_CONSTANT"] = round(rawTemp_tc,3)
+  output_dict["TEST_TEMPERATURE_TMP112_RAW_SETTLE_TIME"] = round(rawTemp_st,3)
+  output_dict["TEST_TEMPERATURE_TMP112_COMP_STEADY_STATE_VALUE"] = round(compTemp_ss,3)
+  output_dict["TEST_TEMPERATURE_TMP112_COMP_TIME_CONSTANT"] = round(compTemp_tc,3)
+  output_dict["TEST_TEMPERATURE_TMP112_COMP_SETTLE_TIME"] = round(compTemp_st,3)
+  output_dict["TEST_TEMPERATURE_HEATER_PLATE_STD_DEV"] = round(np.std(heaterValues),3)
+  output_dict["TEST_TEMPERATURE_HEATER_PLATE_MAX"] = round(np.max(heaterValues),3)
+  output_dict["TEST_TEMPERATURE_HEATER_PLATE_MIN"] = round(np.min(heaterValues),3)
+  output_dict["TEST_TEMPERATURE_AMBIENT_STD_DEV"] = round(np.std(ambientValues),3)
+  output_dict["TEST_TEMPERATURE_AMBIENT_MAX"] = round(np.max(ambientValues),3)
+  output_dict["TEST_TEMPERATURE_AMBIENT_MIN"] = round(np.min(ambientValues),3)
+  output_dict["TEST_TEMPERATURE_APPLIED_STEP"] = round(np.mean(heaterValues)-np.mean(ambientValues),3)
+  output_dict["TEST_TEMPERATURE_DUT_PERCEIVED_STEP"] = round(totalMainSensorValues[len(totalMainSensorValues)-1]-totalMainSensorValues[0],3)
+  output_dict["TEST_THERMISTOR_CONVERTED"] = internalThermValues
+  output_dict["TEST_TEMPERATURE_TMP112_LAST_VALUE"] = round(totalMainSensorValues[len(totalMainSensorValues)-1],3)
+  output_dict["TEST_TEMPERATURE_TMP112_MAX"] = round(np.max(totalMainSensorValues),3)
+  output_dict["TEST_TEMPERATURE_TMP112_MIN"] = round(np.min(totalMainSensorValues),3)
+  output_dict["TEST_TEMPERATURE_TMP112_FIRST_VALUE"] = round(totalMainSensorValues[0],3)
   output_dict["THERMISTOR_STD_DEV"] = round(np.std(internalThermValues),3)
-  output_dict["THERMISTOR_MAX"] = round(np.max(internalThermValues),3)
-  output_dict["THERMISTOR_MIN"] = round(np.min(internalThermValues),3)
+  output_dict["TEST_TEMPERATURE_THERMISTOR_MAX"] = round(np.max(internalThermValues),3)
+  output_dict["TEST_TEMPERATURE_THERMISTOR_MIN"] = round(np.min(internalThermValues),3)
   
   
   #   Plotting for sanity
@@ -285,9 +285,6 @@ def dtsAlgo(df, stepStartTime = '0', stepEndTime = '-1'):
   
   return output_dict
 
-# df = pd.read_csv('Temperature1.csv',dtype=str)
-# result = dtsAlgo(df)
-# print result
 """###############################
 
 # **ALGORITHM INPUT**

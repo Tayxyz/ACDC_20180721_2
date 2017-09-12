@@ -38,7 +38,7 @@
         {"name":"TEST_LOCK3","obj" : "rs232","action": "sendCmd",
             "cmd":"root\r","end":"# ","has":"#","timeout":"1","lock":"lock1"},
 
-        {"name":"TEST_LOCK3","obj" : "rs232","action": "sendCmd",
+        {"name":"TEST_LOCK3","obj" : "rs232","action": "fakeitem",
             "cmd":"root\r","end":"# ","has":"#","timeout":"1","lock":"lock1"},
 
 	    {"name":"TEST_BARRIER3_LIKE_FIXTUROUT","obj" : "rs232","action": "sendCmd",
