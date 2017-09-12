@@ -26,6 +26,7 @@ class data():
         self.csv = []
         self.error_code=''
         self.logStreamData = ''
+        self.ble_mac='31:38:42:30:43:39'
 
     def __new__(cls, *args, **kwargs):
         if not cls.__instance:
@@ -132,7 +133,7 @@ class data():
                 f.write('\n')
 
         spc_id='N/A'
-        spc_iteration='N/A'
+        spc_iteration='0'
         if DATA.STATION_MODE=='SPC':
             flagfilename='CONSISTENCY_'+str(DATA.id)
             try:
@@ -187,7 +188,7 @@ class data():
                 fw.write(fr.read())
 
         try:#upload to server
-            directory = "/vault/logserver"
+            directory = DATA.serverpath
             serverdir = directory + os.sep + dirpath
             logV( serverdir)
 
@@ -198,7 +199,7 @@ class data():
             import shutil
             shutil.copy(self.csvfilename,serverdir+ os.sep + filename+ '.csv')
             shutil.copy(self.cpkfilename,serverdir + os.sep + filename+ '.cpk')
-
+            shutil.copy(self.logfilename, serverdir + os.sep + filename + '.debug')
             pass
         except Exception as e:
             logE( Exception,e)
@@ -222,9 +223,12 @@ class data():
     def op(self, format_content, ui=True, csv=True, ):
         logV( format_content)
         items = format_content.split(',')
-        if len(items) != 5:
-            logE( 'output error! Please check!')
-            return
+        if format_content.find(',\"[[') and format_content.find(']]\",'):
+            pass
+        else:
+            if len(items) != 5:
+                logE( 'output error! Please check!')
+                return
         if items[1].strip() == '1':
             self.totalfails += 1
             self.currentpass = False
@@ -299,6 +303,7 @@ class data():
         DATA.provision_ip=cf.get('provision','ip')
         DATA.dl_py = cf.get('dl', 'py')
         DATA.logserver = cf.get('logserver', 'url')
+        DATA.serverpath = cf.get('logserver', 'serverpath')
         # print DATA.PROJECT, DATA.BUILD_EVENT, DATA.STATION_NAME, DATA.DEVICE_ID, DATA.STATION_MODE
 
 

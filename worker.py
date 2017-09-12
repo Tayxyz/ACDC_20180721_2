@@ -15,7 +15,7 @@ class worker(multiprocessing.Process):
         #print ('work init:', os.getpid(),id(DATA),_id)
         multiprocessing.Process.__init__(self)
         self.id = _id
-        self.isn  =isn
+        self.isn  =isn.upper()
 
         self.result_queue = result_queue
         self.s2c_io=s2c_io
@@ -57,7 +57,7 @@ class worker(multiprocessing.Process):
             for obj in self.script.get_initial():
                 objs[obj["obj"]] = getObject(obj["class"], obj)
             logV( 'initial cost:',time.time()-t0)
-
+            DATA.objs=objs
             process=self.script.get_process()
             steps=len(process)
             logV('process len=',steps)
