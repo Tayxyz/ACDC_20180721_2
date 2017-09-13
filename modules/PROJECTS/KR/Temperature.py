@@ -66,7 +66,7 @@ This is the core testing Algorithm.
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-#import scipy as sp
+import scipy as sp
 from scipy import optimize
 import StringIO
 
@@ -266,7 +266,7 @@ def dtsAlgo(df, stepStartTime = '0', stepEndTime = '-1'):
   output_dict["TEST_TEMPERATURE_TMP112_MAX"] = round(np.max(totalMainSensorValues),3)
   output_dict["TEST_TEMPERATURE_TMP112_MIN"] = round(np.min(totalMainSensorValues),3)
   output_dict["TEST_TEMPERATURE_TMP112_FIRST_VALUE"] = round(totalMainSensorValues[0],3)
-  output_dict["THERMISTOR_STD_DEV"] = round(np.std(internalThermValues),3)
+  output_dict["TEST_TEMPERATURE_THERMISTOR_STD_DEV"] = round(np.std(internalThermValues),3)
   output_dict["TEST_TEMPERATURE_THERMISTOR_MAX"] = round(np.max(internalThermValues),3)
   output_dict["TEST_TEMPERATURE_THERMISTOR_MIN"] = round(np.min(internalThermValues),3)
   

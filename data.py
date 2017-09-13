@@ -245,15 +245,17 @@ class data():
     def op(self, format_content, ui=True, csv=True, ):
         logV( format_content)
         items = format_content.split(',')
-        if format_content.find(',\"[[') and format_content.find(']]\",'):
+        if format_content.find(',\"[[')>=0 and format_content.find(']]\",')>=0:
             pass
         else:
             if len(items) != 5:
                 logE( 'output error! Please check!')
                 return
+            else:
+                items[2] = items[2].replace('"', '')
 
         ###try to find limits if 0####
-        items[2]=items[2].replace('"','')
+
         if items[1].strip() == '0':
             if items[0]+'_UCL' in self.limits.keys():
                 items[3]=str(self.limits[items[0]+'_UCL'])
@@ -370,3 +372,7 @@ def logD(*args):
         fa.write('\n'+time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())))
         fa.write('[debug] ')
         fa.write(v)
+
+if __name__=='__main__':
+    DATA.logfilepath='2222'
+    DATA.op('AAA,0,\"cccc\",NA,NA')

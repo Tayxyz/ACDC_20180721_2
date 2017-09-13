@@ -193,6 +193,7 @@ class DTS():
         the_buf=''
         h_buf=''
         s_buf=''
+        t_buf=''
         try:
             lock = DATA.locks[argv['lock']]
             with lock:
@@ -225,6 +226,7 @@ class DTS():
                         logV(ts_dut)
                         rtbuf += str(float(ts_dut[1].strip())/10) + ';'
                         the_buf += ts_dut[2].strip() + ';'
+                        t_buf+=ts_dut[0].strip() + ';'
                         temp=DATA.objs['temp']
 
                         t_h=temp.readtemp({"name":"TEMPERATURE_READ","obj" : "temp","action": "readtemp",
@@ -264,14 +266,47 @@ class DTS():
             ##TEST_AMBIENT_TEMP_RAW
             ##TEST_HEATER_RAW
 
+            DATA.op('TEST_TIME_RAW,0,' + t_buf + ',N/A,N/A')
             DATA.op('TEST_TEMP112_RAW,0,'+rtbuf+',N/A,N/A')
             DATA.op('TEST_THERMISTOR_RAW,0,' + the_buf + ',N/A,N/A')
             DATA.op('TEST_HEATER_RAW,0,' + h_buf + ',N/A,N/A')
             DATA.op('TEST_AMBIENT_TEMP_RAW,0,' + s_buf + ',N/A,N/A')
             #rtbuf += buf
             logV('return code:', p.returncode)
-            df = pd.read_csv(tempfn, dtype=str)
-            result = dtsAlgo(df)
+            try:
+                df = pd.read_csv(tempfn, dtype=str)
+                result = dtsAlgo(df)
+            except Exception,e:
+                logE('dtsAlgo error:',Exception,e)
+                result={}
+                result["TEST_TEMPERATURE_TMP112_IDLE_TIME"] = 99999
+                result["TEST_TEMPERATURE_TMP112_IDLE_TIME_TEMP_RISE"] = 99999
+                result["TEST_TEMPERATURE_TMP112_EXP_CURVE_CONSTANT_A"] = 99999
+                result["TEST_TEMPERATURE_TMP112_EXP_CURVE_CONSTANT_B"] = 99999
+                result["TEST_TEMPERATURE_TMP112_EXP_CURVE_CONSTANT_C"] = 99999
+                result["TEST_TEMPERATURE_TMP112_RAW_STEADY_STATE_VALUE"] = 99999
+                result["TEST_TEMPERATURE_TMP112_RAW_TIME_CONSTANT"] = 99999
+                result["TEST_TEMPERATURE_TMP112_RAW_SETTLE_TIME"] = 99999
+                result["TEST_TEMPERATURE_TMP112_COMP_STEADY_STATE_VALUE"] = 99999
+                result["TEST_TEMPERATURE_TMP112_COMP_TIME_CONSTANT"] = 99999
+                result["TEST_TEMPERATURE_TMP112_COMP_SETTLE_TIME"] = 99999
+                result["TEST_TEMPERATURE_HEATER_PLATE_STD_DEV"] = 99999
+                result["TEST_TEMPERATURE_HEATER_PLATE_MAX"] = 99999
+                result["TEST_TEMPERATURE_HEATER_PLATE_MIN"] = 99999
+                result["TEST_TEMPERATURE_AMBIENT_STD_DEV"] = 99999
+                result["TEST_TEMPERATURE_AMBIENT_MAX"] = 99999
+                result["TEST_TEMPERATURE_AMBIENT_MIN"] = 99999
+                result["TEST_TEMPERATURE_APPLIED_STEP"] = 99999
+                result["TEST_TEMPERATURE_DUT_PERCEIVED_STEP"] = 99999
+                result["TEST_THERMISTOR_CONVERTED"] = 99999
+                result["TEST_TEMPERATURE_TMP112_LAST_VALUE"] = 99999
+                result["TEST_TEMPERATURE_TMP112_MAX"] = 99999
+                result["TEST_TEMPERATURE_TMP112_MIN"] = 99999
+                result["TEST_TEMPERATURE_TMP112_FIRST_VALUE"] = 99999
+                result["THERMISTOR_STD_DEV"] = 99999
+                result["TEST_TEMPERATURE_THERMISTOR_MAX"] = 99999
+                result["TEST_TEMPERATURE_THERMISTOR_MIN"] = 99999
+
             logV( result)
             if len(result)==0:
                 DATA.op(argv['name'] + ',' + '1,FAIL,N/A,N/A')
