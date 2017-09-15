@@ -1,35 +1,24 @@
-import visa
 import time
 from data import *
+from IO.rs232 import RS232
 
 class NLChroma19000Series():
     def __init__(self, argv):
-        try:
-            self.rm = visa.ResourceManager()
-            if not self._connect(argv['address']):
-                return None
-        except Exception, e:
-            logE( Exception, e)
+        self.io=RS232(argv)
 
-    def _connect(self, address=None):
-        if address is None:
-            address = self.address
-        try:
-            self.inst = self.rm.open_resource(address)
-            # print(self.inst.query('*IDN?'))
-            return True
-        except Exception, e:
-            logE(Exception, e)
-            logE(address, ' not find')
-            return False
+
 
     def get_info(self):
         try:
-            return self.inst.query('*IDN?')#Chroma,19020-4,0,2.10
-        except:
-            return ''
+            self.io._connect()
+            r,v=self.io.wr('*IDN?\r\n','\r\n')#Chroma,19020-4,0,2.10
+            self.io.disconnect()
+            logV(r,v)
+        except Exception,e:
+            logE(Exception,e)
 
     def config(self,argv):
+        self.get_info()
         if not argv.has_key('ac_hightlimit'):
             argv['ac_hightlimit']='0.0029'
         if not argv.has_key('ac_lowlimit'):
@@ -51,64 +40,76 @@ class NLChroma19000Series():
         if not argv.has_key('time_ramp'):
             argv['time_ramp']='0'
 
-        cmds=['*CLS;*OPC?',
-              'SAF:STEP1:AC %s;*OPC?'%argv['ac_voltage'],
-              'SAF:STEP1:AC:LIM %s;*OPC?'%argv['ac_hightlimit'],
-              'SAF:STEP1:AC:LIM:LOW %s;*OPC?'%argv['ac_lowlimit'],
-              'SAF:STEP1:AC:TIME %s;*OPC?'%argv['ac_time'],
-              'SAF:STEP1:AC:LIM:ARC %s;*OPC?'%argv['arc_limit'],
-              'SAF:STEP1:AC:TIME:FALL %s;*OPC?'%argv['time_fall'],
-              'SAF:STEP1:AC:TIME:RAMP %s;*OPC?'%argv['time_ramp'],
-              'SAF:STEP1:AC:CHAN (@%s);*OPC?'%argv['channel'],
-              'MEM:DEL:LOC %s;*OPC?'%argv['script_index'],
-              '*SAV %s;*OPC?'%argv['script_index'],
-              'MEM:STAT:DEF %s,%s;*OPC?'%(argv['script_name'],argv['script_index'])
+        cmds=['*CLS;*OPC?\r\n',
+              'SAF:STEP1:AC %s;*OPC?\r\n'%argv['ac_voltage'].encode("ascii"),
+              'SAF:STEP1:AC:LIM %s;*OPC?\r\n'%argv['ac_hightlimit'].encode("ascii"),
+              'SAF:STEP1:AC:LIM:LOW %s;*OPC?\r\n'%argv['ac_lowlimit'].encode("ascii"),
+              'SAF:STEP1:AC:TIME %s;*OPC?\r\n'%argv['ac_time'].encode("ascii"),
+              'SAF:STEP1:AC:LIM:ARC %s;*OPC?\r\n'%argv['arc_limit'].encode("ascii"),
+              'SAF:STEP1:AC:TIME:FALL %s;*OPC?\r\n'%argv['time_fall'].encode("ascii"),
+              'SAF:STEP1:AC:TIME:RAMP %s;*OPC?\r\n'%argv['time_ramp'].encode("ascii"),
+              'SAF:STEP1:AC:CHAN (@%s);*OPC?\r\n'%argv['channel'].encode("ascii"),
+              'MEM:DEL:LOC %s;*OPC?\r\n'%argv['script_index'].encode("ascii"),
+              '*SAV %s;*OPC?\r\n'%argv['script_index'].encode("ascii"),
+              'MEM:STAT:DEF %s,%s;*OPC?\r\n'%(argv['script_name'].encode("ascii"),argv['script_index'].encode("ascii"))
               ]
-
-        for cmd in cmds:
-            rt=self.inst.query(cmd)
-            logV(cmd,'==>',rt)
-            if not '1\n' == rt:
-                return False
-
+        self.io._connect()
+        try:
+            for cmd in cmds:
+                r,v=self.io.wr(cmd,'1\r\n')
+                logV(cmd,'==>',r,v)
+                if not r:
+                    return False
+            self.io.disconnect()
+        finally:
+            self.io.disconnect()
         return True
 
     def start(self,argv):
         if not argv.has_key('script_index'):
             argv['script_index']='1'
 
-        cmds=['*RCL %s;*OPC?'%argv['script_index'],
-              'SAF:STAR;*OPC?']
-        for cmd in cmds:
-            rt = self.inst.query(cmd)
-            logV(cmd, '==>', rt)
-            if not '1\n' == rt:
-                return False
+        cmds=['*RCL %s;*OPC?\r\n'%argv['script_index'].encode("ascii"),
+              'SAF:STAR;*OPC?\r\n']
+        try:
+            self.io._connect()
+            for cmd in cmds:
+                r,v = self.io.wr(cmd,'1\r\n')
+                logV(cmd, '==>', r,v)
+                if not r:
+                    return False
+        finally:
+            self.io.disconnect()
 
         return True
 
     def wait_till_finish(self,argv):
         if not argv.has_key('timeout'):
-            argv['timeout']='1'
+            argv['timeout']='10'
 
         t0=time.time()
-        rt=''
-        while time.time()-t0<=int(argv['timeout']):
-            rt = self.inst.query('SAF:STAT?')
-            if rt.find('STOPPED')>=0:
-                logV('SAF:STAT?','==>',rt)
-                return True
-        logV('SAF:STAT?', '==>', rt)
+        r=''
+        v=''
+        try:
+            self.io._connect()
+            while time.time()-t0<=int(argv['timeout'].encode("ascii")):
+                r,v = self.io.wr('SAF:STAT?\r\n','STOPPED\r\n')
+                if r:
+                    logV('SAF:STAT?','==>',r,v)
+                    return True
+            logV('SAF:STAT?', '==>', r,v)
+        finally:
+            self.io.disconnect()
         return False
 
     def get_result(self,argv):
         if not argv.has_key('channel'):
             argv['channel']='001'
 
-        cmds=['SAF:CHAN00%s:RES:ALL:TIME?;*OPC?'%argv['channel'],
-              'SAF:CHAN00%s:RES:STEP1:MMET?;*OPC?'%argv['channel'],
-              'SAF%s:RES:COMP?;*OPC?'%argv['channel'],
-              'SAF:CHAN00%s:RES:STEP1?;*OPC?'%argv['channel'],
+        cmds=['SAF:CHAN00%s:RES:ALL:TIME?;*OPC?\r\n'%argv['channel'].encode("ascii"),
+              'SAF:CHAN00%s:RES:STEP1:MMET?;*OPC?\r\n'%argv['channel'].encode("ascii"),
+              'SAF%s:RES:COMP?;*OPC?\r\n'%argv['channel'].encode("ascii"),
+              'SAF:CHAN00%s:RES:STEP1?;*OPC?\r\n'%argv['channel'].encode("ascii"),
               ]
 
         rts={'COMP':'',
@@ -118,16 +119,30 @@ class NLChroma19000Series():
 
         tmp=[]
 
-        for cmd in cmds:
-            rt = self.inst.query(cmd)
-            logV(cmd,'==>',rt)
-            if rt.endswith('1\n'):
-                tmp.append(rt.split(';')[0])
+        try:
+            self.io._connect()
+            time.sleep(0.1)
+            for cmd in cmds:
+                r,v = self.io.wr(cmd,'1\r\n')
+                logV(cmd,'==>',r,v)
+                if r:
+                    try:
+                        tmp.append(v.split(';')[0])
+                    except:
+                        pass
+        finally:
+            self.io.disconnect()
 
-        rts['TIME']=tmp[0]
-        rts['MMET'] = tmp[1]
-        rts['COMP'] = tmp[2]
-        rts['ERROR'] = tmp[3]
+        if len(tmp)==4:
+            rts['TIME']=tmp[0]
+            rts['MMET'] = tmp[1]
+            rts['COMP'] = tmp[2]
+            rts['ERROR'] = tmp[3]
+        else:
+            rts['TIME'] = '0'
+            rts['MMET'] = '0'
+            rts['COMP'] = '0'
+            rts['ERROR'] = '0'
 
         return rts
 
