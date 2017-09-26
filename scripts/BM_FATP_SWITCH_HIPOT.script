@@ -1,0 +1,44 @@
+{
+	//init create all the obj
+	"initial": [
+	    {"obj": "sfis","class": "SFIS.SFIS.SFIS"},
+	    {"obj": "basic_info","class": "COMMON.basic_info.BasicInfo"},
+	    {"obj": "fixture","class": "COMMON.rs232_interface.RS232","COM":"COM3","baudrate":"9600"},
+		{"obj": "hipot","class": "PROJECTS.BM.SWITCH.SWITCH_HIPOT.hipot","COM":"COM2","baudrate":"9600"}
+	],
+
+	"locks":[
+	    {"name":"lock1"},
+	    {"name":"lockSFIS"}
+	],
+
+	"barriers":[
+	    {"name":"barrier1"}
+	],
+
+	"process":[
+
+	    //
+
+	    {"name":"SFIS_LOGIN_DB","obj" : "sfis","action": "SFIS_LOGIN_DB","lock":"lockSFIS"},
+	    {"name":"SFIS_STATION_INPUT_CHECK","obj" : "sfis","action": "SFIS_CHECK_ROUTE","failstop":"YES1","lock":"lockSFIS"},
+	    {"name":"BUILD_PHASE","obj" : "sfis","action": "BUILD_PHASE","lock":"lockSFIS"},
+	    {"name":"BASIC_INFO","obj" : "basic_info","action": "basic_info"},
+
+	    {"name":"TEST_FIXTURE_IN","obj" : "fixture","action": "sendCmd",
+            "cmd":"in\r","end":"pass\r","has":"pass","timeout":"3","barrier":"barrier1"},
+
+
+        {"name":"HIPOT_CONFIG","obj" : "hipot","action": "test_config","barrier":"barrier1","ac_voltage":"1800","arc_limit":"0.01","ac_time":"1"},
+        {"name":"HIPOT_START","obj" : "hipot","action": "test_start","barrier":"barrier1"},
+        {"name":"TEST_1800V_1SEC","obj" : "hipot","action": "get_hipot","lock":"lock1"},
+
+
+        {"name":"TEST_FIXTURE_OUT","obj" : "fixture","action": "sendCmd",
+            "cmd":"out\r","end":"pass\r","has":"pass","timeout":"3","barrier":"barrier1"},
+
+        {"name":"SFIS_UPLOAD_TEST_RESULT","obj" : "sfis","action": "SFIS_WRITE_RESULT","noskip":"YES","lock":"lockSFIS"},
+        {"name":"SFIS_LOGOUT_DB","obj" : "sfis","action": "SFIS_LOGOUT_DB","noskip":"YES","lock":"lockSFIS"},
+        {"name":"END_STEPS","obj" : "basic_info","action": "end_steps","noskip":"YES","lock":"lockSFIS"}
+	]
+}

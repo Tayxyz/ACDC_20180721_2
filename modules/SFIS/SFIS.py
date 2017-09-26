@@ -90,6 +90,42 @@ class SFIS():
                 lock.release()
                 logV('lock.release')
 
+    def TEST_READ_FACTORY_CONFIG(self,argv):
+        if not DATA.STATION_ONLINE == 'YES':
+            DATA.op(argv['name'] + ',0,OFFLINE-SKIP,N/A,N/A')
+            return
+        try:
+            lock=DATA.locks[argv['lock']]
+        except:
+            lock=None
+
+        try:
+            if lock:
+                lock.acquire()
+                logV('lock.acquire')
+
+            for i in range(3):
+                r, s = self.sfis.SFIS_GetVersion(DATA.isn,'GET_CONFIG','MO_MEMO')
+                logV( r, repr(s))
+                if r == '1':
+                    break
+                else:
+                    logV('retry')
+            if r=='1':
+                items= s.split(chr(127))
+                if len(items)>3 and len(items[1])>0:
+                    DATA.op(argv['name']+',0,'+items[1]+',N/A,N/A')
+                    DATA.mlbconfig=items[1]
+                    return
+            DATA.op(argv['name'] + ',1,FAIL,N/A,N/A')
+        except Exception,e:
+            logE(Exception,e)
+        finally:
+            if lock:
+                lock.release()
+                logV('lock.release')
+
+
     def TEST_READ_FACTORY_CONFIG_MLB(self,argv):
         if not DATA.STATION_ONLINE == 'YES':
             DATA.op(argv['name'] + ',0,OFFLINE-SKIP,N/A,N/A')
@@ -347,6 +383,131 @@ class SFIS():
             if lock:
                 lock.release()
                 logV('lock.release')
+
+    def get69by80(self, isn80):
+        try:
+            for i in range(3):
+                r, s = self.sfis.SFIS_GetVersion(isn80, 'MOKP_SN')
+                logV(r, repr(s))
+                if r == '1':
+                    break
+                else:
+                    logV('retry')
+            if r == '1':
+                items = s.split(chr(127))
+                if len(items) > 3 and len(items[1]) > 0:
+                    return items[1]
+            return 'ERROR'
+        except Exception, e:
+            logE(Exception, e)
+            return 'ERROR'
+
+    def get_config(self, isn):
+        try:
+            for i in range(3):
+                r, s = self.sfis.SFIS_GetVersion(isn, 'GET_CONFIG', 'MO_MEMO')
+                logV(r, repr(s))
+                if r == '1':
+                    break
+                else:
+                    logV('retry')
+            if r == '1':
+                items = s.split(chr(127))
+                if len(items) > 3 and len(items[1]) > 0:
+                    return items[1]
+            return 'ERROR'
+        except Exception, e:
+            logE(Exception, e)
+            return 'ERROR'
+
+    def get_mlb_config(self, isn):
+        try:
+            for i in range(3):
+                r, s = self.sfis.SFIS_GetVersion(isn,'GET_CONFIG','MO_MEMO','MEMOCLS,RSDATE')
+                logV(r, repr(s))
+                if r == '1':
+                    break
+                else:
+                    logV('retry')
+            if r == '1':
+                items = s.split(chr(127))
+                if len(items) > 3 and len(items[1]) > 0:
+                    return items[1]
+            return 'ERROR'
+        except Exception, e:
+            logE(Exception, e)
+            return 'ERROR'
+
+    def get_mlb_snx(self,isn,snx):
+        try:
+            for i in range(3):
+                r, s = self.sfis.SFIS_GetVersion(isn, 'ISN_BASEINFO', snx)
+                logV(r, repr(s))
+                if r == '1':
+                    break
+                else:
+                    logV('retry')
+            if r == '1':
+                items = s.split(chr(127))
+                if len(items) > 3 and len(items[1]) > 0:
+                    return items[1]
+            return 'ERROR'
+        except Exception, e:
+            logE(Exception, e)
+            return 'ERROR'
+
+    def get_fatp_snx(self,isn,snx):
+        try:
+            for i in range(3):
+                r, s = self.sfis.SFIS_GetVersion(isn, 'ISNINFO_INFO', snx)
+                logV(r, repr(s))
+                if r == '1':
+                    break
+                else:
+                    logV('retry')
+            if r == '1':
+                items = s.split(chr(127))
+                if len(items) > 3 and len(items[1]) > 0:
+                    return items[1]
+            return 'ERROR'
+        except Exception, e:
+            logE(Exception, e)
+            return 'ERROR'
+
+    def get_6lowpan_mac(self, isn):
+        try:
+            for i in range(3):
+                r, s = self.sfis.SFIS_GetI1394(isn)
+                logV(r, repr(s))
+                if r == '1':
+                    break
+                else:
+                    print 'retry'
+            if r == '1':
+                items = s.split(chr(127))
+                if len(items) > 1 and len(items[1]) == 16:
+                    return ':'.join([items[1][x:x + 2] for x in range(0, 16, 2)])
+            return 'ERROR'
+        except Exception, e:
+            logE(Exception, e)
+            return 'ERROR'
+
+    def get_wifi_mac(self, isn):
+        try:
+            for i in range(3):
+                r, s = self.sfis.SFIS_GetIMAC(isn)
+                logV(r, repr(s))
+                if r == '1':
+                    break
+                else:
+                    logV('retry')
+            items = s.split(chr(127))
+            if len(items) > 1 and len(items[1]) == 12:
+                return ':'.join([items[1][x:x + 2] for x in range(0, 12, 2)])
+            return 'ERROR'
+        except Exception, e:
+            logE(Exception, e)
+            return 'ERROR'
 
 
 if __name__=='__main__':

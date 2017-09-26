@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 import Tkinter as tk
-
+import time,threading
 class dialog():
     def __init__(self,argv):
         pass
@@ -13,7 +13,7 @@ class dialog():
             msg='Example'
         rt = tk.Tk()
         rt.withdraw()
-        l = tk.Label(rt, text=msg,font=('Times', '66', 'bold italic'),foreground='#ff00dd',background='#ffff09')
+        l = tk.Label(rt, text=msg,font=('Times', '35', 'bold italic'),foreground='#ff00dd',background='#ffff09')
         b = tk.Button(rt,text='OK',font=('Times', '30', 'bold italic'),foreground='#fff0dd',background='#999999',command=rt.quit)
         l.pack()
         b.pack()
@@ -32,6 +32,48 @@ class dialog():
         rt.geometry(tmpcnf)
         rt.deiconify()
         rt.mainloop()
+        try:
+            rt.destroy()
+        except:
+            pass
+
+    def count(self,argv):
+        try:
+            n=int(argv['n'])
+        except:
+            n=3
+        rt = tk.Tk()
+        rt.overrideredirect(True)
+        rt.withdraw()
+        text = tk.StringVar()
+        text.set(n)
+        l = tk.Label(rt, textvariable=text,font=('Times', '200', 'bold italic'),foreground='#ff00dd',background='#ffff09')
+        l.pack()
+
+        rt.iconbitmap('c:/Python27/DLLs/py.ico')
+        rt.resizable(False, False)
+        rt.title("Info")
+        rt.update()  # update window ,must do
+        curWidth = rt.winfo_reqwidth()  # get current width
+        curHeight = rt.winfo_height()  # get current height
+        scnWidth, scnHeight = rt.maxsize()  # get screen width and height
+        # now generate configuration information
+        tmpcnf = '%dx%d+%d+%d' % (curWidth, curHeight,
+                                  (scnWidth - curWidth) / 2, (scnHeight - curHeight) / 2)
+        rt.geometry(tmpcnf)
+        rt.deiconify()
+        def backcount():
+            for i in range(n,0,-1):
+                text.set(i)
+                time.sleep(1)
+            rt.quit()
+        bktd=threading.Thread(target=backcount)
+        bktd.start()
+        rt.mainloop()
+        try:
+            rt.destroy()
+        except:
+            pass
 
     def yesorno(self,argv):
         try:
@@ -155,6 +197,5 @@ class dialog():
 
 
 if __name__=='__main__':
-    for i in range(5):
-        d=dialog({})
-        d.ledForM1({})
+    d=dialog({})
+    d.count({"n":"5"})

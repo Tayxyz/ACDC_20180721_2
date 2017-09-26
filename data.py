@@ -72,6 +72,12 @@ class data():
         else:
             self.error_code = ''
 
+            try:
+                if len(self.save_more)>0:
+                    self.logStreamData += self.save_more
+            except:
+                pass
+
         logV(self.error_code)
         logV( self.logStreamData)
 

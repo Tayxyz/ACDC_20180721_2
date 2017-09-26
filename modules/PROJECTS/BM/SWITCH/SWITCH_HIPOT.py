@@ -18,10 +18,10 @@ class hipot():
 
     def test_config(self,argv):
         try:
-            open('whoareyou')
+            open('uiopen')
             import os
-            os.remove('whoareyou')
-        except:
+            os.remove('uiopen')
+        except Exception,e:
             return
         try:
             barrier=DATA.barriers[argv['barrier']]
@@ -91,8 +91,9 @@ class hipot():
         else:
             rt=self.quip.get_result(argv)
         logV(rt)
-        if rt['ERROR']=='':
-            DATA.op()
+        DATA.op(argv['name']+',0,' + rt['MMET'] + ',N/A,N/A')
+        if rt['ERROR']=='35':
+            DATA.op('TEST_ARC,1,FAIL,N/A,N/A')
         else:
-            DATA.op()
+            DATA.op('TEST_ARC,0,PASS,N/A,N/A')
 

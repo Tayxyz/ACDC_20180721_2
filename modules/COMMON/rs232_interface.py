@@ -198,7 +198,7 @@ class RS232:
                 barrier.release()
         else:
             rt,v = self.wr(cmd, end, has, timeout)
-        logV(rt,v)
+        logV(rt,repr(v))
         if rt:
             DATA.op(argv['name']+',0,PASS,N/A,N/A')
         else:

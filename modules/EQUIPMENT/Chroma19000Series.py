@@ -48,7 +48,7 @@ class NLChroma19000Series():
               'SAF:STEP1:AC:LIM:ARC %s;*OPC?\r\n'%argv['arc_limit'].encode("ascii"),
               'SAF:STEP1:AC:TIME:FALL %s;*OPC?\r\n'%argv['time_fall'].encode("ascii"),
               'SAF:STEP1:AC:TIME:RAMP %s;*OPC?\r\n'%argv['time_ramp'].encode("ascii"),
-              'SAF:STEP1:AC:CHAN (@%s);*OPC?\r\n'%argv['channel'].encode("ascii"),
+              #'SAF:STEP1:AC:CHAN (@%s);*OPC?\r\n'%argv['channel'].encode("ascii"),
               'MEM:DEL:LOC %s;*OPC?\r\n'%argv['script_index'].encode("ascii"),
               '*SAV %s;*OPC?\r\n'%argv['script_index'].encode("ascii"),
               'MEM:STAT:DEF %s,%s;*OPC?\r\n'%(argv['script_name'].encode("ascii"),argv['script_index'].encode("ascii"))
@@ -106,10 +106,10 @@ class NLChroma19000Series():
         if not argv.has_key('channel'):
             argv['channel']='001'
 
-        cmds=['SAF:CHAN00%s:RES:ALL:TIME?;*OPC?\r\n'%argv['channel'].encode("ascii"),
-              'SAF:CHAN00%s:RES:STEP1:MMET?;*OPC?\r\n'%argv['channel'].encode("ascii"),
-              'SAF%s:RES:COMP?;*OPC?\r\n'%argv['channel'].encode("ascii"),
-              'SAF:CHAN00%s:RES:STEP1?;*OPC?\r\n'%argv['channel'].encode("ascii"),
+        cmds=['SAF:RES:ALL:TIME?;*OPC?\r\n',
+              'SAF:RES:ALL:MMET?;*OPC?\r\n',
+              'SAF:RES:COMP?;*OPC?\r\n',
+              'SAF:RES:ALL?;*OPC?\r\n',
               ]
 
         rts={'COMP':'',
@@ -130,6 +130,7 @@ class NLChroma19000Series():
                         tmp.append(v.split(';')[0])
                     except:
                         pass
+            r, v = self.io.wr('SAF:STOP;*OPC?\r\n', '1\r\n')
         finally:
             self.io.disconnect()
 
@@ -140,9 +141,9 @@ class NLChroma19000Series():
             rts['ERROR'] = tmp[3]
         else:
             rts['TIME'] = '0'
-            rts['MMET'] = '0'
+            rts['MMET'] = '-9999'
             rts['COMP'] = '0'
-            rts['ERROR'] = '0'
+            rts['ERROR'] = '35'
 
         return rts
 

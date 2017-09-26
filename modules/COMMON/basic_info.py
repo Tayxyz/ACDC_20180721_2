@@ -61,7 +61,7 @@ class BasicInfo():
 
         PRODUCT_NAME_DESC = {'21':'M1','24':'TR1','22':'KR1'}
         PRODUCT_TYPE_DESC = {'A':'NA'}
-        PRODUCT_CODE_DESC = {'22A':'KR1_FATP'}
+        PRODUCT_CODE_DESC = {'22A':'KR1_FATP','21A': 'M1 FATP','21B': 'M1 MLB','21D': 'M1 Interface MLB','24A': 'TR1 FATP','24B': 'TR1 MLB','24D': 'TR1 Daughter MLB'}
         PRODUCT_VERSION_DESC = {'A':'WHITE'}
         MFG_LOCATION_DESC = {'AB':'Pegatron Protek Shanghai','AC':'PEGATRON_MAINTEK_SUZHOU','RA':'Pegatron Protek Shanghai','RC':'Pegatron Maintek Suzhou'}
 
@@ -77,17 +77,19 @@ class BasicInfo():
 
 
         try:
-            isn_info['PRODUCT_TYPE_DESC'] = PRODUCT_TYPE_DESC[isn_info['PRODUCT_TYPE']]
+            isn_info['PRODUCT_CODE_DESC'] = PRODUCT_CODE_DESC[isn_info['PRODUCT_CODE']]
         except:
-            isn_info['PRODUCT_TYPE_DESC'] = 'NA'
+            isn_info['PRODUCT_CODE_DESC'] = 'NA'
+        # try:
+        #     isn_info['PRODUCT_TYPE_DESC'] = PRODUCT_TYPE_DESC[isn_info['PRODUCT_TYPE']]
+        # except:
+        #     isn_info['PRODUCT_TYPE_DESC'] = 'NA'
+        isn_info['PRODUCT_TYPE_DESC']=isn_info['PRODUCT_CODE_DESC'] #follow NAPA instruction
         try:
             isn_info['PRODUCT_NAME_DESC'] = PRODUCT_NAME_DESC[isn_info['PRODUCT_NAME']]
         except:
             isn_info['PRODUCT_NAME_DESC'] = 'NA'
-        try:
-            isn_info['PRODUCT_CODE_DESC'] = PRODUCT_CODE_DESC[isn_info['PRODUCT_CODE']]
-        except:
-            isn_info['PRODUCT_CODE_DESC'] = 'NA'
+
         try:
             isn_info['PRODUCT_VERSION_DESC'] = PRODUCT_VERSION_DESC[isn_info['PRODUCT_VERSION']]
         except:

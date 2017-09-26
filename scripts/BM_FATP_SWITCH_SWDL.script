@@ -1,0 +1,41 @@
+{
+	//init create all the obj
+	"initial": [
+	    {"obj": "sfis","class": "SFIS.SFIS.SFIS"},
+	    {"obj": "basic_info","class": "COMMON.basic_info.BasicInfo"},
+	    {"obj": "pps","class": "EQUIPMENT.GWPPH_1503.pph","address":"GPIB0::5::INSTR"},
+	    {"obj": "pps2","class": "EQUIPMENT.GWPPH_1503.pph","address":"GPIB0::6::INSTR"},
+		{"obj": "dl","class": "COMMON.common.common"}
+	],
+
+	"locks":[
+	    {"name":"lock1"}
+	],
+
+	"barriers":[
+	    {"name":"barrier1"}
+	],
+
+	"process":[
+
+	    //
+        {"name":"PPS_ON","obj" : "pps","action": "power_on","v":"3","i":"0.5"},
+        {"name":"PPS_ON","obj" : "pps2","action": "power_on","v":"3","i":"0.5"},
+	    {"name":"SFIS_LOGIN_DB","obj" : "sfis","action": "SFIS_LOGIN_DB"},
+	    {"name":"SFIS_STATION_INPUT_CHECK","obj" : "sfis","action": "SFIS_CHECK_ROUTE","failstop":"YES1","lock":"lockSFIS"},
+	    {"name":"BUILD_PHASE","obj" : "sfis","action": "BUILD_PHASE"},
+	    {"name":"TEST_READ_FACTORY_CONFIG_MLB","obj" : "sfis","action": "TEST_READ_FACTORY_CONFIG"},
+	    //{"name":"TEST_GET_WIFI_MAC","obj" : "sfis","action": "TEST_GET_WIFI_MAC"},
+	    //{"name":"TEST_GET_6LOWPAN_MAC","obj" : "sfis","action": "TEST_GET_6LOWPAN_MAC"},
+	    {"name":"BASIC_INFO","obj" : "basic_info","action": "basic_info"},
+
+        {"name":"SWDL","obj" : "dl","action": "callexe","exe":"dir -l"},
+
+        {"name":"PPS_OFF","obj" : "pps","action": "power_off"},
+        {"name":"PPS_OFF","obj" : "pps2","action": "power_off"},
+
+        {"name":"SFIS_UPLOAD_TEST_RESULT","obj" : "sfis","action": "SFIS_WRITE_RESULT","noskip":"YES"},
+        {"name":"SFIS_LOGOUT_DB","obj" : "sfis","action": "SFIS_LOGOUT_DB","noskip":"YES"},
+        {"name":"END_STEPS","obj" : "basic_info","action": "end_steps","noskip":"YES"}
+	]
+}
