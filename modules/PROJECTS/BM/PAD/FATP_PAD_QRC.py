@@ -7,8 +7,8 @@ class qrc:
     def get_qrc_from_sfis(self,argv):
         sfis = DATA.objs['sfis']
         self.qrc = sfis.get_mlb_snx(DATA.isn, 'SND')
-        logV(self.qrc)
-        if len(self.qrc)==71:
+        logV(self.qrc,len(self.qrc))
+        if len(self.qrc)==72:
             DATA.op('TEST_GET_QRC,0,PASS,N/A,N/A')
         else:
             DATA.op('TEST_GET_QRC,1,FAIL,N/A,N/A')
@@ -18,16 +18,11 @@ class qrc:
             qrcmodule=argv['templet']
         except:
             qrcmodule='BM_PAD'
-        r,v=self.laser.loadmodule({'modulename':qrcmodule})
-        if not r:
-            DATA.op(argv['name']+',1,FAIL,N/A,N/A')
+        if len(self.qrc)!=72:
+            DATA.op(argv['name'] + ',1,FAIL,N/A,N/A')
             return
-        cmds='<D1,%s><Etest>'%self.qrc
-        r,v=self.laser.loadparameters({'cmd':cmds})
-        if not r:
-            DATA.op(argv['name']+',1,FAIL,N/A,N/A')
-            return
-        r,v=self.laser.etch({})
+
+        r,v=self.laser.etch({'m':qrcmodule,'isn':DATA.isn,'qrc':self.qrc,'pairing':self.qrc[-7:-1]})
         if not r:
             DATA.op(argv['name']+',1,FAIL,N/A,N/A')
         else:

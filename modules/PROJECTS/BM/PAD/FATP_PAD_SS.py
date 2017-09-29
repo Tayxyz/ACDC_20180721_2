@@ -94,7 +94,10 @@ class ss():
         logV(self.io.wr('root\r', '# '))
         for key in self.env_keys:
             cmd=self.env_cmds[key]
-            rt,v=self.io.wr(cmd,'# ','=',1)
+            for i in range(5):
+                rt,v=self.io.wr(cmd,'# ','=',1)
+                if rt:
+                    break
             logV('\n--- ::', self.test_items[key],' : ',cmd)
             logV(rt,v)
             if not rt:
@@ -185,7 +188,7 @@ class ss():
         else:
             DATA.op('TEST_CHECK_CONFIG_PAD_FATP,1,FAIL,N/A,N/A')
 
-        MLBCONFIG = sfis.get_mlb_config(self.isn69)
+        MLBCONFIG = sfis.get_mlb_pre_config(self.isn69)
         if MLBCONFIG == self.env_kv['MLBCONFIG']:
             DATA.op('TEST_CHECK_CONFIG_PAD_MLB,0,PASS,N/A,N/A')
         else:

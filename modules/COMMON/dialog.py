@@ -13,6 +13,7 @@ class dialog():
             msg='Example'
         rt = tk.Tk()
         rt.withdraw()
+        rt.attributes("-alpha", 0.5)
         l = tk.Label(rt, text=msg,font=('Times', '35', 'bold italic'),foreground='#ff00dd',background='#ffff09')
         b = tk.Button(rt,text='OK',font=('Times', '30', 'bold italic'),foreground='#fff0dd',background='#999999',command=rt.quit)
         l.pack()

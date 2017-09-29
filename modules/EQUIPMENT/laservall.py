@@ -25,7 +25,9 @@ class laservall:
         return r, v
 
     def etch(self,argv):
-        r, v = self.io.wr('<X>\n', '<XE>','<RD>')
+        cmd='<L%s><D1,%s><D2,%s><D3,%s><I><X>\n'%(argv['m'],argv['isn'],argv['qrc'],argv['pairing'])
+        cmd=cmd.encode("ascii")
+        r, v = self.io.wr(cmd, '<XE>',timeout=30)
         logV(r, repr(v))
         return r,v
 

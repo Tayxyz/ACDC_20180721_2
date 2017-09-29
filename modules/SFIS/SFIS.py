@@ -438,6 +438,24 @@ class SFIS():
             logE(Exception, e)
             return 'ERROR'
 
+    def get_mlb_pre_config(self, isn):
+        try:
+            for i in range(3):
+                r, s = self.sfis.SFIS_GetVersion(isn,'GET_CONFIG','PREMO_MO_MEMO','MEMOCLS,RSDATE')
+                logV(r, repr(s))
+                if r == '1':
+                    break
+                else:
+                    logV('retry')
+            if r == '1':
+                items = s.split(chr(127))
+                if len(items) > 3 and len(items[1]) > 0:
+                    return items[1]
+            return 'ERROR'
+        except Exception, e:
+            logE(Exception, e)
+            return 'ERROR'
+
     def get_mlb_snx(self,isn,snx):
         try:
             for i in range(3):
