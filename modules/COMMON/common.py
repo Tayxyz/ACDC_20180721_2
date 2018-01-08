@@ -1,5 +1,6 @@
 from data import *
 import subprocess
+import time
 class common:
     def __init__(self,argv):
         pass
@@ -13,14 +14,13 @@ class common:
             p = subprocess.Popen(cmd, 0, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                                  cwd='.', shell=False)
 
-            while p.poll() == None:
-                buf=p.stdout.readline()
+            while True:
+                buf = p.stdout.readline()
+                if not buf:
+                    break
                 logV(buf)
                 rtbuf+=buf
                 time.sleep(0.005)
-            buf=p.stdout.read()
-            logV(buf)
-            rtbuf += buf
             logV('return code:', p.returncode)
             if p.returncode!=0:
                 DATA.op(argv['name'] + ',1,FAIL,N/A,N/A')

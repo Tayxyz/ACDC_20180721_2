@@ -65,7 +65,7 @@ class SFIS():
                 #repair
                 #if time ok
                 t = GetMiddleStr(s,'LF#:',']')
-                if DATA.repair>0 and DATA.repair>int(t):
+                if int(DATA.repair)>0 and int(DATA.repair)>int(t):
                     r,s = self.sfis.SFIS_Repair(DATA.isn)
                     logV( r,repr(s))
                     if r=='1':

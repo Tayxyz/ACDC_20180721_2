@@ -56,6 +56,39 @@ class ssh2linux:
         client.close()
         logV(buf)
 
+    def waitForBoot(self,argv):
+        try:
+            com=argv['com']
+        except:
+            com='COM58'
+        try:
+            boottool=argv['boottool']
+        except:
+            boottool='D:\\Testprogram\\POC\\win-noflash-dfu-20171118\\MfgTool2.exe -noui'
+        try:
+            import subprocess
+            sp = subprocess.Popen(boottool, shell=True, stdout=subprocess.PIPE)
+
+        except Exception,e:
+            print Exception,e
+        t0=time.time()
+        com = serial.Serial(com, 115200, timeout=1)
+        rt=''
+        while time.time()-t0<30:
+            try:
+                rt+=com.read()
+                if rt.find('login:')>=0:
+                    com.write('root\r')
+                    logV(rt)
+                    com.close()
+                    return True
+            except:
+                pass
+            time.sleep(0.3)
+        logE(rt,'timeout..')
+        com.close()
+        return False
+
     def update(self,argv):
         try:
             ip=argv['ip']

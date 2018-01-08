@@ -2,6 +2,8 @@ from data import *
 from IO.rs232 import RS232
 import time
 from PROJECTS.BM.PAD.ssh2linux import ssh2linux
+import COMMON.dialog as dialog
+import subprocess
 
 class ss():
     def __init__(self,argv):
@@ -28,6 +30,17 @@ class ss():
             s2l.flash({})
         except Exception,e:
             logE(Exception,e)
+
+    def waitForBoot(self,argv):
+        s2l = ssh2linux({})
+        try:
+            rt=s2l.waitForBoot(argv)
+            if not rt:
+                DATA.op('BOOT,1,FAIL,N/A,N/A')
+            else:
+                DATA.op('BOOT,0,PASS,N/A,N/A')
+        except Exception, e:
+            logE(Exception, e)
 
     def update(self,argv):
         s2l = ssh2linux({})
@@ -120,6 +133,12 @@ class ss():
                 DATA.save_more='#SAVE:SND:A,0,%s,N/A,N/A\n'%value
                 DATA.op('QRCODE,0,%s,N/A,N/A'%value)
                 return
+        #1P:18$R:1$S:21AA01AC3817004K$L:64166600000F57D8$W:6416660F4525$C:FFR02F$
+        self.qrc='1P:18$R:1$S:'+self.env_kv['ISN_FATP']+'$L:'+self.env_kv['6LOWPAN_MAC']+'$W:'+self.env_kv['WIFI_MAC']+'$C:'+self.env_kv['NLWEAVEPAIRINGCODE']+'$'
+        if len(self.qrc) == 72:
+            DATA.save_more = '#SAVE:SND:A,0,%s,N/A,N/A\n' % value
+            DATA.op('QRCODE,0,%s,N/A,N/A' % value)
+            return
         DATA.op('QRCODE,1,FAIL,N/A,N/A')
 
 
@@ -252,9 +271,121 @@ class ss():
         else:
             DATA.op('TEST_CHECK_6LOWPAN_MAC,1,FAIL,N/A,N/A')
 
+    def optest(self,argv):
+        'nlcli pad -c version =1.5'
+        cmd = 'nlcli pad -c version\r'
+        r, v = self.io.wr(cmd, '# ')
+        logV(r, v)
+        'nlcli pad -c "p w g 12 1"'
+        cmd = 'nlcli pad -c "p w g 12 1"\r'
+        r, v = self.io.wr(cmd, '# ')
+        logV(r, v)
 
+        closeLedCmd=['nlcli pad -c "led_white 0 0 ff 0"\r',
+                     'nlcli pad -c "led_rgb 0 0 0 0 0 0"\r']
+        for cmd in closeLedCmd:
+            r, v = self.io.wr(cmd, '# ')
+            logV(r, v)
+        redLedCmd=['nlcli pad -c "led_rgb 1 0 ff 0 0 1ff"\r',
+                   'nlcli pad -c "led_rgb 1 0 0 0 0 1ff"\r',
+                   'nlcli pad -c "led_rgb 2 0 ff 0 0 1ff"\r',
+                   'nlcli pad -c "led_rgb 2 0 0 0 0 1ff"\r'
+        ]
+        greenLedCmd=[
+            'nlcli pad -c "led_rgb 1 0 0 ff 0 1ff"\r',
+            'nlcli pad -c "led_rgb 1 0 0 0 0 1ff"\r',
+            'nlcli pad -c "led_rgb 2 0 0 ff 0 1ff"\r',
+            'nlcli pad -c "led_rgb 2 0 0 0 0 1ff"\r'
+        ]
+        blueLedCmd=[
+            'nlcli pad -c "led_rgb 1 0 0 0 ff 1ff"\r',
+            'nlcli pad -c "led_rgb 1 0 0 0 0 1ff"\r',
+            'nlcli pad -c "led_rgb 2 0 0 0 ff 1ff"\r',
+            'nlcli pad -c "led_rgb 2 0 0 0 0 1ff"\r'
+        ]
+        whiteLedCmd=[
+            'nlcli pad -c "led_white 1 0 ff 1ff"\r',
+            'nlcli pad -c "led_white 1 0 ff 0"\r',
+            'nlcli pad -c "led_white 2 0 ff 1ff"\r',
+            'nlcli pad -c "led_white 2 0 ff 0"\r'
+        ]
+        ledCmds={
+            'close':closeLedCmd,
+            'red':redLedCmd,
+            'green':greenLedCmd,
+            'blue':blueLedCmd,
+            'white':whiteLedCmd
+        }
+        ledColors=['red','green','blue','white']
+        for color in ledColors:
+            cmds=ledCmds[color]
+            r, v = self.io.wr(cmds[0], '# ')
+            logV(r, v)
+            d = dialog.dialog({})
+            r=d.yesorno({'msg':'left %s led?'%color})
+            if r==0:
+                DATA.op('LEFT_%s,0,PASS,N/A,N/A'%color)
+            else:
+                DATA.op('LEFT_%s,1,FAIL,N/A,N/A'%color)
+            r, v = self.io.wr(cmds[1], '# ')
+            logV(r, v)
+            r, v = self.io.wr(cmds[2], '# ')
+            logV(r, v)
+            d = dialog.dialog({})
+            r = d.yesorno({'msg': 'right %s led?' % color})
+            if r == 0:
+                DATA.op('RIGHT_%s,0,PASS,N/A,N/A' % color)
+            else:
+                DATA.op('RIGHT_%s,1,FAIL,N/A,N/A' % color)
+            r, v = self.io.wr(cmds[3], '# ')
+            logV(r, v)
+
+        senseAll='nlcli pad -c senseAll\r'
+        for i in range(5):
+            r, v = self.io.wr(senseAll, '# ')
+            logV(r, v)
+
+        itg='nlcli pad -c itg\r'
+        r, v = self.io.wr(itg, '# ')
+        logV(r, v)
+        ia='nlcli pad -c ia\r'
+        r, v = self.io.wr(ia, '# ')
+        logV(r, v)
+        it0='nlcli pad -c it0\r'
+        r, v = self.io.wr(it0, '# ')
+        logV(r, v)
+        ip='nlcli pad -c ip\r'
+        r, v = self.io.wr(ip, '# ')
+        logV(r, v)
+        iif='nlcli pad -c if\r'
+        r, v = self.io.wr(iif, '# ')
+        logV(r, v)
+        its='nlcli pad -c its 1\r'
+        r, v = self.io.wr(its, '# ')
+        logV(r, v)
+        itall='nlcli pad -c itall\r'
+        r, v = self.io.wr(itall, '# ')
+        logV(r, v)
+        ia1='nlcli pad -c ia\r'
+        r, v = self.io.wr(ia1, '# ')
+        logV(r, v)
+        urt='nlcli uart /dev/ttysensormcu0 -p\r'
+        r, v = self.io.wr(urt, '# ')
+        logV(r, v)
+        its0='its 0\r'
+        for i in range(20):
+            r, v = self.io.wr(its0, '>')
+            logV(r, v)
 
     def system_halt(self,argv):
+        'nlcli pad -c version =1.5'
+        cmd = 'nlcli pad -c version\r'
+        r, v = self.io.wr(cmd, '# ')
+        logV(r, v)
+        if r and v.find('1.5')>=0:
+            DATA.op('MCU_VERSION,0,PASS,N/A,N/A')
+        else:
+            DATA.op('MCU_VERSION,1,FAIL,N/A,N/A')
         cmd='/sbin/halt\r'
         r, v = self.io.wr(cmd, '# ')
         self.io.disconnect()
@@ -262,3 +393,28 @@ class ss():
             DATA.op('SYSTEM_HALT,0,PASS,N/A,N/A')
         else:
             DATA.op('SYSTEM_HALT,1,FAIL,N/A,N/A')
+
+    def printQRC(self,argv):
+        subprocess.call('taskkill /F /IM MfgTool2.exe', shell=True)
+        if DATA.totalfails > 0:
+            DATA.op('PRINT_QRC,1,SKIP,N/A,N/A')
+            return
+        cmd='''^XA
+                    ^LH166,30^FS
+                    ^FO6,8
+                    ^A0N,14,14^FDFATP_ISN^FS
+                    ^FO10,22
+                    ^BQN,2,3
+                    ^FDQA,QRCODE^FS
+                    ^FO43,160
+                    ^A0N,16,16^FDPAIRINGCODE^FS
+                    ^XZ'''
+        cmd=cmd.replace('FATP_ISN',self.env_kv['ISN_FATP']).replace('QRCODE',self.qrc).replace('PAIRINGCODE',self.env_kv['NLWEAVEPAIRINGCODE'])
+        with open('qrc.txt','w') as f:
+            f.write(cmd)
+        rc = subprocess.call('copy qrc.txt LPT1', shell=True)
+        if rc==0:
+            DATA.op('PRINT_QRC,0,OK,N/A,N/A')
+        else:
+            DATA.op('PRINT_QRC,1,FAIL,N/A,N/A')
+

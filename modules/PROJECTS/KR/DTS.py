@@ -208,8 +208,10 @@ class DTS():
                 tempfn = 'Temperature2.csv'
             with open(tempfn,'w') as fw:
                 fw.write('Time,Heater_Temp,Ambient_Temp,MainTempSensor,Thermistor_1\n')
-                while p.poll() == None:
+                while True:
                     buf = p.stdout.readline()
+                    if not buf:
+                        break
                     logV(buf)
 
                     try:
@@ -258,8 +260,7 @@ class DTS():
 
                     #rtbuf += buf
                     time.sleep(0.005)
-            buf = p.stdout.read()
-            logV(buf)
+            p.wait()
             ##TEST_TEMP112_RAW
             ##TEST_THERMISTOR_RAW
             ##TEST_THERMISTOR_CONVERTED

@@ -1,6 +1,6 @@
 
-script='scripts/BM_FATP_PAD_QRC.script'
-setting = 'setting/Setting_BM_FATP_PAD_QRC.ini'
+script='scripts/BM_FATP_PAD_SS_V2.script'
+setting = 'setting/Setting_BM_FATP_PAD_SS.ini'
 
 import re,json
 import os,shutil

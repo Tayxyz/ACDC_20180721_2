@@ -83,16 +83,18 @@ class dialog():
             msg='Example'
         rt = tk.Tk()
         rt.withdraw()
-
+        global who
         who=-1
 
         def yesfun():
             print 'yes'
+            global who
             who=0
             rt.quit()
 
         def nofun():
             print 'no'
+            global who
             who=1
             rt.quit()
 
@@ -118,6 +120,7 @@ class dialog():
         rt.geometry(tmpcnf)
         rt.deiconify()
         rt.mainloop()
+        rt.destroy()
         return who
 
     def ledForM1(self,argv):

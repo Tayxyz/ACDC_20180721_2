@@ -18,7 +18,7 @@
 	"process":[
 
 	    //
-	    {"name":"INFO","obj" : "diag","action": "info","msg":"摁住左边按钮后插USB,\n到灯亮后再放开按钮"},
+	    //{"name":"INFO","obj" : "diag","action": "info","msg":"摁住左边按钮后插USB,\n到灯亮后再放开按钮"},
 	    {"name":"SFIS_LOGIN_DB","obj" : "sfis","action": "SFIS_LOGIN_DB"},
 	    {"name":"SFIS_STATION_INPUT_CHECK","obj" : "sfis","action": "SFIS_CHECK_ROUTE","failstop":"YES1","lock":"lockSFIS"},
 	    {"name":"BUILD_PHASE","obj" : "sfis","action": "BUILD_PHASE"},
@@ -27,16 +27,18 @@
 	    //{"name":"TEST_GET_6LOWPAN_MAC","obj" : "sfis","action": "TEST_GET_6LOWPAN_MAC"},
 	    {"name":"BASIC_INFO","obj" : "basic_info","action": "basic_info"},
 
-        {"name":"DFU","obj" : "ss","action": "update"},
-        {"name":"INFO","obj" : "diag","action": "info","msg":"请拿起机台再放下"},
-        {"name":"INFO","obj" : "diag","action": "count","n":"5"},
-        {"name":"DFU","obj" : "ss","action": "flash"},
+        //{"name":"DFU","obj" : "ss","action": "update"},
+        //{"name":"INFO","obj" : "diag","action": "info","msg":"请拿起机台再放下"},
+        //{"name":"INFO","obj" : "diag","action": "count","n":"5"},
+        {"name":"DFU","obj" : "ss","action": "waitForBoot"},
 
         {"name":"TEST_ENV","obj" : "ss","action": "read_env"},
         {"name":"TEST_ENV","obj" : "ss","action": "set_read_nlwirelessregdom"},
         {"name":"TEST_ENV","obj" : "ss","action": "set_read_nldestcountry"},
         {"name":"TEST_ENV","obj" : "ss","action": "check_env"},
+        //{"name":"TEST_ENV","obj" : "ss","action": "optest"},
         {"name":"TEST_ENV","obj" : "ss","action": "system_halt"},
+        {"name":"TEST_ENV","obj" : "ss","action": "printQRC"},
 
         {"name":"SFIS_UPLOAD_TEST_RESULT","obj" : "sfis","action": "SFIS_WRITE_RESULT","noskip":"YES"},
         {"name":"SFIS_LOGOUT_DB","obj" : "sfis","action": "SFIS_LOGOUT_DB","noskip":"YES"},
