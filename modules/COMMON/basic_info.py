@@ -59,9 +59,9 @@ class BasicInfo():
 
     def isninfo(self):
 
-        PRODUCT_NAME_DESC = {'21':'M1','24':'TR1','22':'KR1'}
+        PRODUCT_NAME_DESC = {'21A':'M1','26A':'M1','21C':'TR1','26C':'TR1','22':'KR1'}
         PRODUCT_TYPE_DESC = {'A':'NA'}
-        PRODUCT_CODE_DESC = {'22A':'KR1_FATP','21A': 'M1 FATP','21B': 'M1 MLB','21D': 'M1 Interface MLB','24A': 'TR1 FATP','24B': 'TR1 MLB','24D': 'TR1 Daughter MLB'}
+        PRODUCT_CODE_DESC = {'22A':'KR1 FATP','21A': 'M1 FATP','26A': 'M1 FATP','21B': 'M1 MLB','21D': 'M1 Interface MLB','24A': 'TR1 FATP','21C': 'TR1 FATP','26C': 'TR1 FATP','24B': 'TR1 MLB','24D': 'TR1 Daughter MLB'}
         PRODUCT_VERSION_DESC = {'A':'WHITE'}
         MFG_LOCATION_DESC = {'AB':'Pegatron Protek Shanghai','AC':'PEGATRON_MAINTEK_SUZHOU','RA':'Pegatron Protek Shanghai','RC':'Pegatron Maintek Suzhou'}
 
@@ -86,7 +86,7 @@ class BasicInfo():
         #     isn_info['PRODUCT_TYPE_DESC'] = 'NA'
         isn_info['PRODUCT_TYPE_DESC']=isn_info['PRODUCT_CODE_DESC'] #follow NAPA instruction
         try:
-            isn_info['PRODUCT_NAME_DESC'] = PRODUCT_NAME_DESC[isn_info['PRODUCT_NAME']]
+            isn_info['PRODUCT_NAME_DESC'] = PRODUCT_NAME_DESC[isn_info['PRODUCT_CODE']]
         except:
             isn_info['PRODUCT_NAME_DESC'] = 'NA'
 
@@ -114,6 +114,8 @@ class BasicInfo():
         DATA.op('MFG_YEAR' +  ',0,' + isn_info['MFG_YEAR'] + ',N/A,N/A',ui=False)
 
 
+    def record_isn(self,argv):
+        DATA.op(argv['name']+',0,'+DATA.isn+',N/A,N/A')
 
 
     def basic_info(self,argv):
@@ -123,6 +125,21 @@ class BasicInfo():
         DATA.op('STATION_MAC' + ',0,' + self.get_pc_macaddress()+',N/A,N/A')
         DATA.op('REL_STATUS' + ',0,N/A,N/A,N/A', ui=False)
         self.isninfo()
+
+    def fatp_isn_config_stuff(self,argv):
+        self.isn80 = DATA.isn
+        DATA.op('TEST_READ_ISN_FATP,0,%s,N/A,N/A'%DATA.isn)
+
+        sfis = DATA.objs['sfis']
+        logD(type(sfis))
+        # self.isn69 = sfis.get69by80(self.isn80)
+        # DATA.op('TEST_READ_ISN_MLB,0,%s,N/A,N/A'%self.isn69)
+
+        CONFIG_FATP = sfis.get_config(self.isn80)
+        DATA.op('TEST_READ_FACTORY_CONFIG_FATP,0,%s,N/A,N/A'%CONFIG_FATP)
+
+        # MLBCONFIG = sfis.get_mlb_pre_config(self.isn69)
+        # DATA.op('TEST_READ_FACTORY_CONFIG_MLB,0,%s,N/A,N/A'%MLBCONFIG)
 
     def wait(self, argv):
         time.sleep(float(argv['seconds']))

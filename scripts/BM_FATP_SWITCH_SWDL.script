@@ -3,9 +3,9 @@
 	"initial": [
 	    {"obj": "sfis","class": "SFIS.SFIS.SFIS"},
 	    {"obj": "basic_info","class": "COMMON.basic_info.BasicInfo"},
-	    {"obj": "pps","class": "EQUIPMENT.GWPPH_1503.pph","address":"GPIB0::5::INSTR"},
-	    {"obj": "pps2","class": "EQUIPMENT.GWPPH_1503.pph","address":"GPIB0::6::INSTR"},
-		{"obj": "dl","class": "COMMON.common.common"}
+	    //{"obj": "pps","class": "EQUIPMENT.GWPPH_1503.pph","address":"GPIB0::5::INSTR"},
+	    //{"obj": "pps2","class": "EQUIPMENT.GWPPH_1503.pph","address":"GPIB0::6::INSTR"},
+		{"obj": "dl","class": "PROJECTS.BM.SWITCH.FATP_SWDL.dl"}
 	],
 
 	"locks":[
@@ -19,20 +19,46 @@
 	"process":[
 
 	    //
-        {"name":"PPS_ON","obj" : "pps","action": "power_on","v":"3","i":"0.5"},
-        {"name":"PPS_ON","obj" : "pps2","action": "power_on","v":"3","i":"0.5"},
+        //{"name":"PPS_ON","obj" : "pps","action": "power_on","v":"3","i":"0.5"},
+        //{"name":"PPS_ON","obj" : "pps2","action": "power_on","v":"3","i":"0.5"},
 	    {"name":"SFIS_LOGIN_DB","obj" : "sfis","action": "SFIS_LOGIN_DB"},
 	    {"name":"SFIS_STATION_INPUT_CHECK","obj" : "sfis","action": "SFIS_CHECK_ROUTE","failstop":"YES1","lock":"lockSFIS"},
 	    {"name":"BUILD_PHASE","obj" : "sfis","action": "BUILD_PHASE"},
-	    {"name":"TEST_READ_FACTORY_CONFIG_MLB","obj" : "sfis","action": "TEST_READ_FACTORY_CONFIG"},
-	    //{"name":"TEST_GET_WIFI_MAC","obj" : "sfis","action": "TEST_GET_WIFI_MAC"},
-	    //{"name":"TEST_GET_6LOWPAN_MAC","obj" : "sfis","action": "TEST_GET_6LOWPAN_MAC"},
 	    {"name":"BASIC_INFO","obj" : "basic_info","action": "basic_info"},
 
-        {"name":"SWDL","obj" : "dl","action": "callexe","exe":"dir -l"},
+        {"name":"GANG_NUMBER","obj" : "dl","action": "whichgang"},
 
-        {"name":"PPS_OFF","obj" : "pps","action": "power_off"},
-        {"name":"PPS_OFF","obj" : "pps2","action": "power_off"},
+        {"name":"OPEN_COM","obj" : "dl","action": "open_com_port","com_name":"dut_com","COM":"COM18"},
+        {"name":"SEND_ENTER","obj" : "dl","action": "send_cmd","cmd":"\r","has":"#","com_name":"dut_com"},
+        {"name":"SEND_ENTER_BL","obj" : "dl","action": "send_cmd","cmd":"bootloader\r","has":"..U.............","com_name":"dut_com"},
+        {"name":"CLOSE_COM","obj" : "dl","action": "close_com_port","com_name":"dut_com"},
+
+        {"name":"SWDL1","obj" : "dl","action": "callexe","exe":"D:\\TESTPROGRAM\\stm32flash-0.5-win64\\stm32flash.exe -S 0x8012000:0xD000 -f -w D:\\TESTPROGRAM\\tiros0812\\tiros_hi.bin -b 115200 COM18","has":"(100.00%) Done."},
+        {"name":"SWDL2","obj" : "dl","action": "callexe","exe":"D:\\TESTPROGRAM\\stm32flash-0.5-win64\\stm32flash.exe -S 0x8005000:0xD000 -f -w D:\\TESTPROGRAM\\tiros0812\\tiros_lo.bin -b 115200 COM18","has":"(100.00%) Done."},
+        {"name":"SWDL3","obj" : "dl","action": "callexe","exe":"D:\\TESTPROGRAM\\stm32flash-0.5-win64\\stm32flash.exe -S 0x8000000:0x4000 -f -w D:\\TESTPROGRAM\\tiros0812\\tiros_bl.bin -b 115200 -g 0x0 COM18","has":"done."},
+
+        {"name":"OPEN_COM","obj" : "dl","action": "open_com_port","com_name":"dut_com","COM":"COM18"},
+        {"name":"SEND_ENTER","obj" : "dl","action": "send_cmd","cmd":"\r","has":"#","com_name":"dut_com"},
+        {"name":"SEND_ENTER","obj" : "dl","action": "send_cmd","cmd":"boot0 off\r","has":"..U.p...........","com_name":"dut_com"},
+        {"name":"CLOSE_COM","obj" : "dl","action": "close_com_port","com_name":"dut_com"},
+
+        // other side
+        {"name":"OPEN_COM","obj" : "dl","action": "open_com_port","com_name":"dut_com","COM":"COM19","gang":"2"},
+        {"name":"SEND_ENTER","obj" : "dl","action": "send_cmd","cmd":"\r","has":"#","com_name":"dut_com","gang":"2"},
+        {"name":"SEND_ENTER_BL","obj" : "dl","action": "send_cmd","cmd":"bootloader\r","has":"..U.............","com_name":"dut_com","gang":"2"},
+        {"name":"CLOSE_COM","obj" : "dl","action": "close_com_port","com_name":"dut_com","gang":"2"},
+
+        {"name":"SWDL1","obj" : "dl","action": "callexe","exe":"D:\\TESTPROGRAM\\stm32flash-0.5-win64\\stm32flash.exe -S 0x8012000:0xD000 -f -w D:\\TESTPROGRAM\\tiros0812\\tiros_hi.bin -b 115200 COM19","has":"(100.00%) Done.","gang":"2"},
+        {"name":"SWDL2","obj" : "dl","action": "callexe","exe":"D:\\TESTPROGRAM\\stm32flash-0.5-win64\\stm32flash.exe -S 0x8005000:0xD000 -f -w D:\\TESTPROGRAM\\tiros0812\\tiros_lo.bin -b 115200 COM19","has":"(100.00%) Done.","gang":"2"},
+        {"name":"SWDL3","obj" : "dl","action": "callexe","exe":"D:\\TESTPROGRAM\\stm32flash-0.5-win64\\stm32flash.exe -S 0x8000000:0x4000 -f -w D:\\TESTPROGRAM\\tiros0812\\tiros_bl.bin -b 115200 -g 0x0 COM19","has":"done.","gang":"2"},
+
+        {"name":"OPEN_COM","obj" : "dl","action": "open_com_port","com_name":"dut_com","COM":"COM19","gang":"2"},
+        {"name":"SEND_ENTER","obj" : "dl","action": "send_cmd","cmd":"\r","has":"#","com_name":"dut_com"},
+        {"name":"SEND_ENTER","obj" : "dl","action": "send_cmd","cmd":"boot0 off\r","has":"..U.p...........","com_name":"dut_com"},
+        {"name":"CLOSE_COM","obj" : "dl","action": "close_com_port","com_name":"dut_com"},
+
+        //{"name":"PPS_OFF","obj" : "pps","action": "power_off"},
+        //{"name":"PPS_OFF","obj" : "pps2","action": "power_off"},
 
         {"name":"SFIS_UPLOAD_TEST_RESULT","obj" : "sfis","action": "SFIS_WRITE_RESULT","noskip":"YES"},
         {"name":"SFIS_LOGOUT_DB","obj" : "sfis","action": "SFIS_LOGOUT_DB","noskip":"YES"},

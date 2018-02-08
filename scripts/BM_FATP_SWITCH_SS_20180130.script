@@ -1,0 +1,46 @@
+{
+	//init create all the obj
+	"initial": [
+	    {"obj": "sfis","class": "SFIS.SFIS.SFIS"},
+	    {"obj": "basic_info","class": "COMMON.basic_info.BasicInfo"},
+		{"obj": "dl","class": "PROJECTS.BM.SWITCH.FATP_SWITCH_SS.ss","COM":{"1":"COM7","2":"COM5"}}
+	],
+
+	"locks":[
+	    {"name":"lock1"}
+	],
+
+	"barriers":[
+	    {"name":"barrier1"}
+	],
+
+	"process":[
+
+
+	    {"name":"SFIS_LOGIN_DB","obj" : "sfis","action": "SFIS_LOGIN_DB"},
+	    {"name":"SFIS_STATION_INPUT_CHECK","obj" : "sfis","action": "SFIS_CHECK_ROUTE","failstop":"YES1","lock":"lockSFIS"},
+	    {"name":"BUILD_PHASE","obj" : "sfis","action": "BUILD_PHASE"},
+	    {"name":"BASIC_INFO","obj" : "basic_info","action": "basic_info"},
+
+        {"name":"TEST_READ_VALUE","obj" : "dl","action": "testReadValue"},
+        {"name":"TEST_CHECK_VALUE","obj" : "dl","action": "checkSysEnv"},
+
+        {"name":"OPEN_COM","obj" : "dl","action": "open_com_port"},
+        {"name":"SEND_ENTER","obj" : "dl","action": "send_cmd","cmd":"\r","has":"#"},
+        {"name":"SEND_BOOTLOAD","obj" : "dl","action": "send_cmd","cmd":"bootloader\r","has":"..U............."},
+        {"name":"CLOSE_COM","obj" : "dl","action": "close_com_port"},
+
+        {"name":"TEST_WRITE_SWITCH_FIRMWARE1","obj" : "dl","action": "callexe","exe":"D:\\TESTPROGRAM\\stm32flash-0.5-win64\\stm32flash.exe -S 0x8012000:0xD000 -f -w D:\\TESTPROGRAM\\tirosapp100d23\\tiros_hi.bin -b 115200 COM?","has":"(100.00%) Done."},
+        {"name":"TEST_WRITE_SWITCH_FIRMWARE2","obj" : "dl","action": "callexe","exe":"D:\\TESTPROGRAM\\stm32flash-0.5-win64\\stm32flash.exe -S 0x8005000:0xD000 -f -w D:\\TESTPROGRAM\\tirosapp100d23\\tiros_lo.bin -b 115200 COM?","has":"(100.00%) Done."},
+        {"name":"TEST_WRITE_SWITCH_FIRMWARE3","obj" : "dl","action": "callexe","exe":"D:\\TESTPROGRAM\\stm32flash-0.5-win64\\stm32flash.exe -S 0x8000000:0x4000 -f -w D:\\TESTPROGRAM\\tirosapp100d23\\tiros_bl.bin -b 115200 -g 0x0 COM?","has":"done."},
+
+        {"name":"OPEN_COM1","obj" : "dl","action": "open_com_port"},
+        {"name":"TEST_CHECK_SS_VERSION","obj" : "dl","action": "send_cmd","cmd":"\r","end":"\n\r# \r\n# ","has":"Tiros mk diags L072 EVT board vers:1.0.0d23 build in high flash. code @0x80199dd Daily build Jan 31 2018 07:38:36"},
+        {"name":"SEND_BOOTOFF","obj" : "dl","action": "send_cmd","cmd":"boot0 off\r","has":"..U.p..........."},
+        {"name":"CLOSE_COM1","obj" : "dl","action": "close_com_port"},
+
+        {"name":"SFIS_UPLOAD_TEST_RESULT","obj" : "sfis","action": "SFIS_WRITE_RESULT","noskip":"YES"},
+        {"name":"SFIS_LOGOUT_DB","obj" : "sfis","action": "SFIS_LOGOUT_DB","noskip":"YES"},
+        {"name":"END_STEPS","obj" : "basic_info","action": "end_steps","noskip":"YES"}
+	]
+}

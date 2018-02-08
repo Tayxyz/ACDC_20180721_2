@@ -3,11 +3,12 @@
 	"initial": [
 	    {"obj": "sfis","class": "SFIS.SFIS.SFIS"},
 	    {"obj": "basic_info","class": "COMMON.basic_info.BasicInfo"},
-		{"obj": "qrc","class": "PROJECTS.BM.PAD.FATP_PAD_QRC.qrc","COM":"COM4"}
+		{"obj": "burning","class": "PROJECTS.BM.PAD.FATP_PAD_BURNING.burning","COM":{"1":"COM13","2":"34","3":"435","4":"456"},"baudrate":"115200"}
 	],
 
 	"locks":[
-	    {"name":"lock1"}
+	    {"name":"lock1"},
+	    {"name":"lockSFIS"}
 	],
 
 	"barriers":[
@@ -18,15 +19,16 @@
 
 	    //
 
-	    {"name":"SFIS_LOGIN_DB","obj" : "sfis","action": "SFIS_LOGIN_DB"},
+	    {"name":"SFIS_LOGIN_DB","obj" : "sfis","action": "SFIS_LOGIN_DB","lock":"lockSFIS"},
 	    {"name":"SFIS_STATION_INPUT_CHECK","obj" : "sfis","action": "SFIS_CHECK_ROUTE","failstop":"YES1","lock":"lockSFIS"},
 	    {"name":"BUILD_PHASE","obj" : "sfis","action": "BUILD_PHASE"},
-	    {"name":"TEST_READ_FACTORY_CONFIG_MLB","obj" : "sfis","action": "TEST_READ_FACTORY_CONFIG"},
+
 	    {"name":"BASIC_INFO","obj" : "basic_info","action": "basic_info"},
 
-        {"name":"TEST_QRC","obj" : "qrc","action": "rotatein"},
-        {"name":"TEST_QRC","obj" : "qrc","action": "etchisn","templet1":"TR1SINGLE","templet2":"TR1Double"},
-        {"name":"TEST_QRC","obj" : "qrc","action": "rotateout"},
+        {"name":"TAR_LOG","obj" : "burning","action": "compress","cmd":"tar -zpcv -f /media/scratch/burnin_log.tar.gz /media/log/burnin\r","timeout":"5"},
+        {"name":"TEST_APPEND","obj" : "burning","action": "test_append","flag":"OVERALL_TEST_RESULT"},
+        {"name":"SEND_LOG_TO_PC","obj" : "burning","action": "send_log_to_pc","tar":"/media/scratch/burnin_log.tar.gz"},
+        {"name":"BATT_SHIP","obj" : "burning","action": "batt_ship","cmd":"nlcli pad -c ship\r"},
 
         {"name":"SFIS_UPLOAD_TEST_RESULT","obj" : "sfis","action": "SFIS_WRITE_RESULT","noskip":"YES"},
         {"name":"SFIS_LOGOUT_DB","obj" : "sfis","action": "SFIS_LOGOUT_DB","noskip":"YES"},

@@ -7,7 +7,8 @@
 	],
 
 	"locks":[
-	    {"name":"lock1"}
+	    {"name":"lock1"}，
+	    {"name":"lockSFIS"}
 	],
 
 	"barriers":[
@@ -18,13 +19,15 @@
 
 	    //
 
-	    {"name":"SFIS_LOGIN_DB","obj" : "sfis","action": "SFIS_LOGIN_DB"},
+	    {"name":"SFIS_LOGIN_DB","obj" : "sfis","action": "SFIS_LOGIN_DB","lock":"lockSFIS"},
 	    {"name":"SFIS_STATION_INPUT_CHECK","obj" : "sfis","action": "SFIS_CHECK_ROUTE","failstop":"YES1","lock":"lockSFIS"},
 	    {"name":"BUILD_PHASE","obj" : "sfis","action": "BUILD_PHASE"},
 
 	    {"name":"BASIC_INFO","obj" : "basic_info","action": "basic_info"},
         {"name":"TEST_QRC","obj" : "qrc","action": "get_qrc_from_sfis"},
-        {"name":"TEST_QRC","obj" : "qrc","action": "etchqr","m":"???"},
+        {"name":"TEST_QRC","obj" : "qrc","action": "rotatein"},
+        {"name":"TEST_QRC","obj" : "qrc","action": "etchqr","templet1":"BM_Single","templet2":"BM_Double"},
+        {"name":"TEST_QRC","obj" : "qrc","action": "rotateout"},
 
         {"name":"SFIS_UPLOAD_TEST_RESULT","obj" : "sfis","action": "SFIS_WRITE_RESULT","noskip":"YES"},
         {"name":"SFIS_LOGOUT_DB","obj" : "sfis","action": "SFIS_LOGOUT_DB","noskip":"YES"},

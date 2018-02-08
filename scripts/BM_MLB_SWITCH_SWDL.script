@@ -29,8 +29,9 @@
 	    {"name":"TEST_GET_PROVISION_INFO","obj" : "provision","action": "GetWeaveProvisioningInfo"},
 
         {"name":"SWDL","obj" : "dl","action": "callexe","exe":"stm32flash.exe -S 0x8012000:0xD000 -f -w TirosAppHi.bin -b 115200 com5"},
-        {"name":"SWDL","obj" : "dl","action": "callexe","exe":"stm32flash.exe -S 0x8005000:0xD000 -f -w TirosAppLo.bin -b 115200 com5"},
-        {"name":"SWDL","obj" : "dl","action": "callexe","exe":"stm32flash.exe -S 0x8000000:0x4000 -f -w TirosBootloader.bin -b 115200 -g 0x0 com5"},
+        {"name":"SWDL","obj" : "dl","action": "callexe","exe":"stm32flash.exe -S 0x8005000:0xD000 -f -w TirosAppLo.bin -b 115200 com5","has":"Writing"},
+        {"name":"SWDL","obj" : "dl","action": "callexe","exe":"stm32flash.exe -S 0x8000000:0x4000 -f -w TirosBootloader.bin -b 115200 -g 0x0 com5","has":"device"},
+
 
         {"name":"TEST_ENV","obj" : "sysenv","action": "write_sysenv"},
         {"name":"TEST_ENV","obj" : "sysenv","action": "read_env"},

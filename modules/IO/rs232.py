@@ -35,11 +35,15 @@ class RS232:
         except Exception, e:
             logE(Exception, e)
 
+    def connect(self):
+        self.com = serial.Serial(self.comnub, self.baudrate, parity=self.parity, timeout=0)
+
     def disconnect(self, argv=None):
         try:
             self.com.close()
         except Exception, e:
             print Exception, e
+            logE(Exception, e)
 
     def wr(self, cmd, end, has='', timeout=3):
         try:
@@ -50,6 +54,24 @@ class RS232:
                 buf += self.com.readall()
                 if buf.endswith(end) and buf.find(has) >= 0:
                     return True, buf
+            return False, buf
+        except Exception, e:
+            logE(Exception, e)
+            return False, e
+
+    def wr_bytes(self, cmd, end, has='', timeout=3):
+        try:
+            self.com.write(cmd)
+            buf = ''
+            t0 = time.time()
+            while time.time() - t0 < timeout:
+                buf += self.com.readall()
+                logD(buf)
+                try:
+                    if buf.endswith(end) and buf.find(has) >= 0:
+                        return True, buf
+                except:
+                    pass
             return False, buf
         except Exception, e:
             logE(Exception, e)

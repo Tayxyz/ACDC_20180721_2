@@ -3,11 +3,27 @@ import subprocess
 import time
 from IO.rs232 import RS232
 
-class common:
+class dl:
     def __init__(self,argv):
         self.rs232={}
 
+    def whichgang(self,argv):
+        if DATA.isn.startswith('26'):
+            self.gang = '1'
+        elif DATA.isn.startswith('21'):
+            self.gang = '2'
+        else:
+            self.gang = 'NUKNOW'
+        DATA.op('GANG_NUMB,0,%s,N/A,N/A'%self.gang)
+
     def callexe(self,argv):
+        try:
+            gang=argv['gang']
+        except:
+            gang='1,2,3,4'
+        if not self.gang in gang:
+            #DATA.op(argv['name'] + ',0,SKIP,N/A,N/A')
+            return
         cmd=argv['exe']
         try:
             has=argv['has']
@@ -38,15 +54,36 @@ class common:
             return ''
 
     def open_com_port(self,argv):
+        try:
+            gang=argv['gang']
+        except:
+            gang='1,2,3,4'
+        if not self.gang in gang:
+            #DATA.op(argv['name'] + ',0,SKIP,N/A,N/A')
+            return
         name=argv['com_name']
         self.rs232[name]=RS232(argv)
         self.rs232[name]._connect()
 
     def close_com_port(self,argv):
+        try:
+            gang=argv['gang']
+        except:
+            gang='1,2,3,4'
+        if not self.gang in gang:
+            #DATA.op(argv['name'] + ',0,SKIP,N/A,N/A')
+            return
         name = argv['com_name']
         self.rs232[name].disconnect()
 
     def send_cmd(self,argv):
+        try:
+            gang=argv['gang']
+        except:
+            gang='1,2,3,4'
+        if not self.gang in gang:
+            #DATA.op(argv['name'] + ',0,SKIP,N/A,N/A')
+            return
         com_name = argv['com_name']
         cmd=argv['cmd'].encode('ascii')
         try:

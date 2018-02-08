@@ -1,0 +1,37 @@
+{
+//init create all the obj
+    "initial": [
+	    {"obj": "sfis","class": "SFIS.SFIS.SFIS"},
+	    {"obj": "basic_info","class": "COMMON.basic_info.BasicInfo"},
+	    {"obj": "diag","class": "COMMON.dialog.dialog"},
+	    {"obj": "test","class": "temp.fortest.test"},
+		{"obj": "ss","class": "PROJECTS.BM.PAD.FATP_PAD_SS.ss","COM":{"1":"COM6","2":"COM7","3":"COM8","4":"COM9"},"hub_port":{"1":"Hub:1-Port:1","2":"Hub:1-Port:2","3":"Hub:1-Port:2","4":"Hub:1-Port:2"}}
+	],
+
+	"locks":[
+	    {"name":"lock1"}
+	],
+
+	"barriers":[
+	    {"name":"barrier1"}
+	],
+
+	"process":[
+
+
+        {"name":"STOP_SWDL","obj" : "test","action": "passfail","anyfailstop":"YES"},
+        {"name":"INFO","obj" : "ss","action": "showinfo","msg":"长按（左）键直到灯灭了后再次亮起！","barrier":"barrier1","noskip":"YES"},
+        {"name":"STOP_SWDL","obj" : "basic_info","action": "wait","seconds":"20"},
+        {"name":"STOP_SWDL","obj" : "ss","action": "killDLTool","barrier":"barrier1","noskip":"YES"},
+
+        {"name":"INFO","obj" : "ss","action": "showinfo","msg":"短按（左）按钮1秒重启机台","barrier":"barrier1","noskip":"YES"},
+
+        {"name":"OPEN_COM_PORT","obj" : "ss","action": "waitForRebootAndSeeCOMPort","timeout":"700"},
+        {"name":"TEST_CHECK_SHIPPING_IMAGE_VERSION","obj" : "ss","action": "checkssversion","version":"Linux version 4.1.15-1.0d1 (ofery@oferye-glaptop) (gcc version 5.2.0 (GCC) ) #1 PREEMPT Tue Jan 30 19:30:47 PST 2018"},
+
+
+        {"name":"SFIS_UPLOAD_TEST_RESULT","obj" : "sfis","action": "SFIS_WRITE_RESULT","noskip":"YES"},
+        {"name":"SFIS_LOGOUT_DB","obj" : "sfis","action": "SFIS_LOGOUT_DB","noskip":"YES"},
+        {"name":"END_STEPS","obj" : "basic_info","action": "end_steps","noskip":"YES"}
+	]
+}

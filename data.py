@@ -2,6 +2,7 @@ import threading
 import time,datetime
 import os
 import sys
+import shutil
 import ConfigParser
 
 Lock = threading.Lock()
@@ -19,6 +20,7 @@ class data():
         self.LOG_PATH = 'log'
         self.totalfails = 0
         self.repair = 0
+        self.AAB = 0
         self.currentpass = True
         self.test_failures=''
         self.error=''
@@ -28,6 +30,7 @@ class data():
         self.logStreamData = ''
         self.ble_mac='31:38:42:30:43:39'
         self.getlimits()
+        self.morefiles = []
 
     def __new__(cls, *args, **kwargs):
         if not cls.__instance:
@@ -59,7 +62,7 @@ class data():
         for line in self.csv:
             items = line.split(',')
             if items[1] == '1':
-                self.logStreamData += line
+                self.logStreamData += line+'\n'
                 final = final + 1
                 if fails == '':
                     fails = items[0]
@@ -194,6 +197,13 @@ class data():
             with open(self.logfilename,'w') as fw:
                 fw.write(fr.read())
 
+        try:
+            for file in self.morefiles:
+                newfile = logdir + os.sep +file
+                shutil.copy(file, newfile)
+        except:
+            pass
+
         try:#upload to server
             directory = DATA.serverpath
             serverdir = directory + os.sep + dirpath
@@ -203,11 +213,16 @@ class data():
                 os.makedirs(serverdir)
             except Exception as e:
                 pass
-            import shutil
+
             shutil.copy(self.csvfilename,serverdir+ os.sep + filename+ '.csv')
             shutil.copy(self.cpkfilename,serverdir + os.sep + filename+ '.cpk')
             shutil.copy(self.logfilename, serverdir + os.sep + filename + '.debug')
-            pass
+            try:
+                for file in self.morefiles:
+                    shutil.copy(file, serverdir + os.sep + file)
+                    os.remove(file)
+            except:
+                pass
         except Exception as e:
             logE( Exception,e)
         finally:
@@ -261,6 +276,10 @@ class data():
                 items[2] = items[2].replace('"', '')
 
         ###try to find limits if 0####
+        if items[0] + '_UCL' in self.limits.keys():
+            items[3] = str(self.limits[items[0] + '_UCL'])
+        if items[0] + '_LCL' in self.limits.keys():
+            items[4] = str(self.limits[items[0] + '_LCL'])
 
         if items[1].strip() == '0':
             if items[0]+'_UCL' in self.limits.keys():
@@ -345,6 +364,10 @@ class data():
         DATA.sfis_url=cf.get('sfis', 'url')
         DATA.sfis_tsp=cf.get('sfis', 'tsp')
         DATA.repair = cf.get('sfis', 'repair')
+        try:
+            DATA.AAB = cf.get('sfis', 'AAB')
+        except:
+            pass
         DATA.provision_ip=cf.get('provision','ip')
         DATA.dl_py = cf.get('dl', 'py')
         DATA.logserver = cf.get('logserver', 'url')
@@ -378,6 +401,15 @@ def logD(*args):
         fa.write('\n'+time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())))
         fa.write('[debug] ')
         fa.write(v)
+
+def GetMiddleStr(content, startStr, endStr):
+    startIndex = content.find(startStr)
+    if startIndex >= 0:
+        startIndex += len(startStr)
+        endIndex = content.find(endStr, startIndex)
+        if endIndex >= 0:
+            return content[startIndex:endIndex]
+    return ''
 
 if __name__=='__main__':
     DATA.logfilepath='2222'

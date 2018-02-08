@@ -1,0 +1,52 @@
+{
+//init create all the obj
+    "initial": [
+	    {"obj": "sfis","class": "SFIS.SFIS.SFIS"},
+	    {"obj": "basic_info","class": "COMMON.basic_info.BasicInfo"},
+	    {"obj": "diag","class": "COMMON.dialog.dialog"},
+		{"obj": "ss","class": "PROJECTS.BM.PAD.FATP_PAD_SS.ss","COM":{"1":"COM6","2":"COM7","3":"COM8","4":"COM9"},"hub_port":{"1":"Hub:1-Port:1","2":"Hub:1-Port:2","3":"Hub:1-Port:2","4":"Hub:1-Port:2"}}
+	],
+
+	"locks":[
+	    {"name":"lock1"}
+	],
+
+	"barriers":[
+	    {"name":"barrier1"},
+	    {"name":"barrier2"},
+	    {"name":"barrier3"}
+	],
+
+	"process":[
+
+	    //
+	    {"name":"SFIS_LOGIN_DB","obj" : "sfis","action": "SFIS_LOGIN_DB"},
+	    {"name":"CHECK_QRC","obj" : "ss","action": "check_qrc"},
+	    {"name":"SFIS_STATION_INPUT_CHECK","obj" : "sfis","action": "SFIS_CHECK_ROUTE","failstop":"YES1","lock":"lockSFIS"},
+	    {"name":"BUILD_PHASE","obj" : "sfis","action": "BUILD_PHASE"},
+	    {"name":"BASIC_INFO","obj" : "basic_info","action": "basic_info"},
+
+        {"name":"READ_ENV","obj" : "ss","action": "readALLEnv"},
+        {"name":"CHECK_ENV","obj" : "ss","action": "check_env"},
+        {"name":"SET_CHECK_NLWIRELESSREDOM","obj" : "ss","action": "set_read_nlwirelessregdom"},
+        {"name":"SET_READ_NLDESTCOUNTRY","obj" : "ss","action": "set_read_nldestcountry"},
+        {"name":"READ_ENV","obj" : "ss","action": "readsysenv"},
+        {"name":"CHECK_ENV","obj" : "ss","action": "checksysenv","anyfailstop":"YES"},
+
+
+        {"name":"INFO","obj" : "ss","action": "showinfo","msg":"长按（左）键直到灯灭了后再次亮起！","barrier":"barrier1","noskip":"YES"},
+	    {"name":"START_SWDL","obj" : "ss","action": "openDLTool","boottool":"D:\\Testprogram\\EVT\\win-update-dfu-1.0d1-moonstone-development-0NUV\\MfgTool2.exe -autostart","barrier":"barrier1"},
+        {"name":"TEST_FLASH_SHIPPING_IMAGE","obj" : "ss","action": "waitDLDone","log":"D:\\Testprogram\\EVT\\win-update-dfu-1.0d1-moonstone-development-0NUV\\MfgTool.log","timeout":"600"},
+        {"name":"STOP_SWDL","obj" : "ss","action": "killDLTool","barrier":"barrier2","noskip":"YES"},
+
+        {"name":"INFO","obj" : "ss","action": "showinfo","msg":"短按（左）按钮1秒重启机台","barrier":"barrier3","noskip":"YES"},
+
+        {"name":"OPEN_COM_PORT","obj" : "ss","action": "waitForRebootAndSeeCOMPort","timeout":"700"},
+        {"name":"TEST_CHECK_SHIPPING_IMAGE_VERSION","obj" : "ss","action": "checkssversion","version":"Linux version 4.1.15-1.0d1 (ofery@oferye-glaptop) (gcc version 5.2.0 (GCC) ) #1 PREEMPT Tue Jan 30 19:30:47 PST 2018"},
+
+
+        {"name":"SFIS_UPLOAD_TEST_RESULT","obj" : "sfis","action": "SFIS_WRITE_RESULT","noskip":"YES"},
+        {"name":"SFIS_LOGOUT_DB","obj" : "sfis","action": "SFIS_LOGOUT_DB","noskip":"YES"},
+        {"name":"END_STEPS","obj" : "basic_info","action": "end_steps","noskip":"YES"}
+	]
+}

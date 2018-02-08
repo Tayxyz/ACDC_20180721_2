@@ -12,20 +12,24 @@ class dialog():
         except:
             msg='Example'
         rt = tk.Tk()
+        rt.wm_attributes('-topmost',1)
         rt.withdraw()
-        rt.attributes("-alpha", 0.5)
-        l = tk.Label(rt, text=msg,font=('Times', '35', 'bold italic'),foreground='#ff00dd',background='#ffff09')
-        b = tk.Button(rt,text='OK',font=('Times', '30', 'bold italic'),foreground='#fff0dd',background='#999999',command=rt.quit)
-        l.pack()
-        b.pack()
+        # rt.attributes("-alpha", 1)
+        l = tk.Label(rt, text=msg,font=('Times', '35', 'bold italic'),foreground='#ff00dd',background='#ffff09',wraplength=1000)
+        b = tk.Button(rt,text='OK',font=('Times', '50', 'bold italic'),foreground='#fff0dd',background='#999999',command=rt.quit)
+        l.pack(padx=20,pady=20)
+        b.pack(padx=20,pady=20)
 
         #rt.overrideredirect(True)
-        rt.iconbitmap('c:/Python27/DLLs/py.ico')
+        try:
+            rt.iconbitmap('d:/Python27/DLLs/py.ico')
+        except:
+            pass
         rt.resizable(False, False)
         rt.title("Info")
         rt.update()  # update window ,must do
         curWidth = rt.winfo_reqwidth()  # get current width
-        curHeight = rt.winfo_height()  # get current height
+        curHeight = rt.winfo_reqheight()  # get current height
         scnWidth, scnHeight = rt.maxsize()  # get screen width and height
         # now generate configuration information
         tmpcnf = '%dx%d+%d+%d' % (curWidth, curHeight,
@@ -202,4 +206,4 @@ class dialog():
 
 if __name__=='__main__':
     d=dialog({})
-    d.count({"n":"5"})
+    d.info({'msg':'xxx'})

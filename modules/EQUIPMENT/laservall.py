@@ -25,14 +25,25 @@ class laservall:
         return r, v
 
     def etch(self,argv):
-        cmd='<L%s><D1,%s><D2,%s><D3,%s><I><X>\n'%(argv['m'],argv['isn'],argv['qrc'],argv['pairing'])
+        cmd='<L%s><D1,%s><D2,%s><D3,%s><X>'%(argv['m'],argv['isn'],argv['qrc'],argv['pairing'])
         cmd=cmd.encode("ascii")
         r, v = self.io.wr(cmd, '<XE>',timeout=30)
         logV(r, repr(v))
         return r,v
 
+    def etchisn(self,argv):
+        cmd = '<L%s><D1,%s><X>' % (argv['m'], argv['isn'])
+        cmd = cmd.encode("ascii")
+        r, v = self.io.wr(cmd, '<XE>', timeout=30)
+        logV(r, repr(v))
+        return r, v
+
     def rotatein(self,argv):
-        pass
+        r, v = self.io.wr('<I>', '<W>', timeout=30)
+        logV(r, repr(v))
+        return r
 
     def rotateout(self,argv):
-        pass
+        r, v = self.io.wr('<I>', '<W>', timeout=30)
+        logV(r, repr(v))
+        return r

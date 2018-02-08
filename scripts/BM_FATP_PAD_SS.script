@@ -11,7 +11,9 @@
 	],
 
 	"barriers":[
-	    {"name":"barrier1"}
+	    {"name":"barrier1"},
+	    {"name":"barrier2"},
+	    {"name":"barrier3"}
 	],
 
 	"process":[

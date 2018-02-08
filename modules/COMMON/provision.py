@@ -19,13 +19,20 @@ class provision():
             DATA.op(argv['name'] + ',0,OFFLINE-SKIP,N/A,N/A')
             return
         try:
-
-            DATA.lock_common('LOCK_SFIS')
+            try:
+                lock = DATA.locks[argv['lock']]
+            except:
+                lcok = None
+            # DATA.lock_common('LOCK_SFIS')
             get_str = 'https://%s:8000/%s?macAddr=%s' % (DATA.provision_ip,'GetWeaveProvisioningInfo', DATA.MAC_6LOWPAN)
             requests.packages.urllib3.disable_warnings()
+            if lock:
+                lock.acquire()
             r=requests.get(get_str,verify=False)
+            if lock:
+                lock.release()
             info=r.text
-            print info
+            logV(info)
             if "</dict>" in info:
                 aaa = info.replace("\n", "")
                 DATA.nlWeaveCertificate = self.GetMiddleStr(aaa, 'nlWeaveCertificate</key><string>', '</string><key>nlWeavePrivateKey')
@@ -48,7 +55,8 @@ class provision():
             DATA.op(argv['name'] + ',1,FAIL,N/A,N/A')
         except Exception,e:
             print Exception,e
-            DATA.op(argv['name']+',1,FAIL,N/A,N/A')
+            DATA.op(argv['name']+',1,Exception,N/A,N/A')
         finally:
-            DATA.unlock_common('LOCK_SFIS')
+            pass
+            # DATA.unlock_common('LOCK_SFIS')
 

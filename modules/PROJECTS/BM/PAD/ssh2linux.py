@@ -1,4 +1,4 @@
-import paramiko
+# import paramiko
 import serial
 import time
 from data import *
@@ -6,6 +6,7 @@ import threading
 
 class ssh2linux:
     def __init__(self,argv):
+
         pass
 
     def flash(self,argv):
@@ -64,7 +65,7 @@ class ssh2linux:
         try:
             boottool=argv['boottool']
         except:
-            boottool='D:\\Testprogram\\POC\\win-noflash-dfu-20171118\\MfgTool2.exe -noui'
+            boottool='D:\\preEVT\\win-virgin-dfu-1.0d1-msevt-17-moonstone-diagnostics-0NUG\\MfgTool2.exe -autostart'
         try:
             import subprocess
             sp = subprocess.Popen(boottool, shell=True, stdout=subprocess.PIPE)
@@ -74,19 +75,32 @@ class ssh2linux:
         t0=time.time()
         com = serial.Serial(com, 115200, timeout=1)
         rt=''
-        while time.time()-t0<30:
+        while time.time()-t0<150:
             try:
-                rt+=com.read()
-                if rt.find('login:')>=0:
-                    com.write('root\r')
-                    logV(rt)
+                tmp=com.readall()
+                
+                if len(tmp)>0:
+                    logV(tmp)
+                    rt +=tmp
+                if tmp.find('Update Complete!')>=0:
+                    try:
+                        import subprocess
+                        subprocess.Popen("taskkill /F /IM MfgTool2.exe");
+                    except Exception, e:
+                        pass
+
                     com.close()
                     return True
             except:
                 pass
-            time.sleep(0.3)
+            #time.sleep(0.3)
         logE(rt,'timeout..')
         com.close()
+        try:
+            import subprocess
+            subprocess.Popen("taskkill /F /IM MfgTool2.exe");
+        except Exception,e:
+            pass
         return False
 
     def update(self,argv):

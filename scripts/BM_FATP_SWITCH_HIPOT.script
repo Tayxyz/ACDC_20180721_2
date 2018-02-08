@@ -3,7 +3,7 @@
 	"initial": [
 	    {"obj": "sfis","class": "SFIS.SFIS.SFIS"},
 	    {"obj": "basic_info","class": "COMMON.basic_info.BasicInfo"},
-	    {"obj": "fixture","class": "COMMON.rs232_interface.RS232","COM":"COM3","baudrate":"9600"},
+	    {"obj": "fixture","class": "COMMON.rs232_interface.RS232","COM":"COM4","baudrate":"9600"},
 		{"obj": "hipot","class": "PROJECTS.BM.SWITCH.SWITCH_HIPOT.hipot","COM":"COM2","baudrate":"9600"}
 	],
 
@@ -23,6 +23,7 @@
 	    {"name":"SFIS_LOGIN_DB","obj" : "sfis","action": "SFIS_LOGIN_DB","lock":"lockSFIS"},
 	    {"name":"SFIS_STATION_INPUT_CHECK","obj" : "sfis","action": "SFIS_CHECK_ROUTE","failstop":"YES1","lock":"lockSFIS"},
 	    {"name":"BUILD_PHASE","obj" : "sfis","action": "BUILD_PHASE","lock":"lockSFIS"},
+	    {"name":"BASIC_INFO","obj" : "basic_info","action": "fatp_isn_config_stuff"},
 	    {"name":"BASIC_INFO","obj" : "basic_info","action": "basic_info"},
 
 	    {"name":"TEST_FIXTURE_IN","obj" : "fixture","action": "sendCmd",

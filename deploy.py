@@ -1,12 +1,16 @@
 
-script='scripts/BM_FATP_PAD_SS_V2.script'
-setting = 'setting/Setting_BM_FATP_PAD_SS.ini'
+script='scripts/BM_fix_led_bincode.script'
+setting = 'setting/Setting.ini'
 
 import re,json
 import os,shutil
 import py_compile
+import datetime
 
-target='../release/'+script.split('/')[1].split('.')[0]
+timestr = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+script_name = script.split('/')[1].split('.')[0]
+setting_name = setting.split('/')[1].split('.')[0]
+target='../release/'+script_name+'_'+timestr
 
 try:
     os.mkdir(target)
@@ -17,9 +21,10 @@ try:
     os.makedirs(target+'/'+'setting')
 except:
     pass
-
-shutil.copy(script,target+'/'+script)
-shutil.copy(setting,target+'/'+setting)
+targetscriptname = script_name+'_'+timestr+'.script'
+targetsettingname = setting_name+'_'+timestr+'.ini'
+shutil.copy(script,target+'/scripts/'+targetscriptname)
+shutil.copy(setting,target+'/setting/'+targetsettingname)
 
 necessary=['controller.py','data.py','reflex.py','script.py','singletoneBarrier.py','worker.py']
 for f in necessary:

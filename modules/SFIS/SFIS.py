@@ -1,6 +1,6 @@
 from data import *
 from MySFIS import SFISWebService
-
+import COMMON.dialog as dialog
 
 def GetMiddleStr( content, startStr, endStr):
     startIndex = content.index(startStr)
@@ -61,28 +61,41 @@ class SFIS():
 
             r, s = self.sfis.SFIS_CheckRoute(DATA.isn)
             logV( r, repr(s))
+            if r =='1': ## PASS return
+                DATA.op(argv['name'] + ',0,PASS,N/A,N/A')
+                return
             if r=='0' and 'REPAIR OF' in s:
                 #repair
                 #if time ok
                 t = GetMiddleStr(s,'LF#:',']')
-                if int(DATA.repair)>0 and int(DATA.repair)>int(t):
-                    r,s = self.sfis.SFIS_Repair(DATA.isn)
+                try:
+                    int(t)
+                except:
+                    t='0'
+                # over repair return
+                if int(DATA.repair)>0 and int(DATA.repair)<=int(t):
+                    dlg = dialog.dialog(argv)
+                    dlg.info({'msg': 'OVER REPAIR COUNT = %s'%t})
+                    DATA.op(argv['name'] + ',1,FAIL,N/A,N/A')
+                    return
+
+                ## AAB return
+
+                ## repaire PASS return
+                r,s = self.sfis.SFIS_Repair(DATA.isn)
+                logV( r,repr(s))
+                if r=='1':
+                    r, s = self.sfis.SFIS_CheckRoute(DATA.isn)
                     logV( r,repr(s))
                     if r=='1':
-                        r, s = self.sfis.SFIS_CheckRoute(DATA.isn)
-                        logV( r,repr(s))
-                        if r=='1':
-                            DATA.op(argv['name']+',0,PASS,N/A,N/A')
-                        else:
-                            DATA.op(argv['name'] + ',1,FAIL,N/A,N/A')
-                    else:
-                        DATA.op(argv['name'] + ',1,FAIL,N/A,N/A')
-                else:
-                    DATA.op(argv['name'] + ',1,FAIL,N/A,N/A')
-            elif r =='1':
-                DATA.op(argv['name'] + ',0,PASS,N/A,N/A')
-            else:
-                DATA.op(argv['name'] + ',1,FAIL,N/A,N/A')
+                        DATA.op(argv['name']+',0,PASS,N/A,N/A')
+                        return
+
+            ##  Fail return
+            dlg = dialog.dialog(argv)
+            dlg.info({'msg':s})
+            DATA.op(argv['name'] + ',1,FAIL,N/A,N/A')
+            return
         except Exception,e:
             logE(Exception,e)
         finally:
@@ -284,7 +297,7 @@ class SFIS():
                 logV('lock.acquire')
             DATA.create_streamData()
             r, s = self.sfis.SFIS_TestResult(DATA.isn, DATA.error_code, DATA.logStreamData)
-            logV(r, s)
+            logV(r, repr(s))
             if r=='0':
                 DATA.op(argv['name'] + ',1,FAIL,N/A,N/A')
             else:
@@ -438,6 +451,24 @@ class SFIS():
             logE(Exception, e)
             return 'ERROR'
 
+    def get_buildphase(self, isn):
+        try:
+            for i in range(3):
+                r, s = self.sfis.SFIS_GetVersion(isn,'GET_CONFIG','MO_MEMO','MEMOCLS,RSDATE')
+                logV(r, repr(s))
+                if r == '1':
+                    break
+                else:
+                    logV('retry')
+            if r == '1':
+                items = s.split(chr(127))
+                if len(items) > 3 and len(items[1]) > 0:
+                    return items[2]
+            return 'ERROR'
+        except Exception, e:
+            logE(Exception, e)
+            return 'ERROR'
+
     def get_mlb_pre_config(self, isn):
         try:
             for i in range(3):
@@ -522,6 +553,24 @@ class SFIS():
             items = s.split(chr(127))
             if len(items) > 1 and len(items[1]) == 12:
                 return ':'.join([items[1][x:x + 2] for x in range(0, 12, 2)])
+            return 'ERROR'
+        except Exception, e:
+            logE(Exception, e)
+            return 'ERROR'
+
+    def get_keypart(self,isn,kpbc):
+        try:
+            for i in range(3):
+                r, s = self.sfis.SFIS_GetVersion(isn, 'MOKP_SN',kpbc)
+                logV(r, repr(s))
+                if r == '1':
+                    break
+                else:
+                    logV('retry')
+            if r == '1':
+                items = s.split(chr(127))
+                if len(items) > 3 and len(items[1]) > 0:
+                    return items[1]
             return 'ERROR'
         except Exception, e:
             logE(Exception, e)
