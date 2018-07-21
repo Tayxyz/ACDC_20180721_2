@@ -61,6 +61,7 @@ class SFIS():
 
             r, s = self.sfis.SFIS_CheckRoute(DATA.isn)
             logV( r, repr(s))
+
             if r =='1': ## PASS return
                 DATA.op(argv['name'] + ',0,PASS,N/A,N/A')
                 return
@@ -80,6 +81,29 @@ class SFIS():
                     return
 
                 ## AAB return
+                if DATA.AAB == 'YES':
+                    r, s = self.sfis.SFIS_GetVersion(DATA.isn, 'MO_D', 'DEVICE')
+                    logV(r, repr(s))
+                    if r !='1' or s.find('DATA GET OK')==-1:
+                        dlg = dialog.dialog(argv)
+                        dlg.info({'msg': 'get device fail'})
+                        DATA.op(argv['name'] + ',1,FAIL,N/A,N/A')
+                        return
+                    items = s.split(chr(127))
+                    try:
+                        predeviceid = items[1]
+                    except:
+                        predeviceid = 'UNKNOW'
+                    if predeviceid==DATA.DEVICE_ID and int(t)%2==1:
+                        dlg = dialog.dialog(argv)
+                        dlg.info({'msg': 'AAB:should not test on device:%s'%predeviceid})
+                        DATA.op(argv['name'] + ',1,FAIL,N/A,N/A')
+                        return
+                    elif predeviceid!=DATA.DEVICE_ID and int(t)%2==0:
+                        dlg = dialog.dialog(argv)
+                        dlg.info({'msg': 'AAB:should test on device:%s' % predeviceid})
+                        DATA.op(argv['name'] + ',1,FAIL,N/A,N/A')
+                        return
 
                 ## repaire PASS return
                 r,s = self.sfis.SFIS_Repair(DATA.isn)
@@ -102,6 +126,7 @@ class SFIS():
             if lock:
                 lock.release()
                 logV('lock.release')
+
 
     def TEST_READ_FACTORY_CONFIG(self,argv):
         if not DATA.STATION_ONLINE == 'YES':
@@ -230,7 +255,7 @@ class SFIS():
                 if r == '1':
                     break
                 else:
-                    print 'retry'
+                    logV('retry')
             if r=='1':
                 items= s.split(chr(127))
                 if len(items)>1 and len(items[1])==16:
@@ -415,6 +440,24 @@ class SFIS():
             logE(Exception, e)
             return 'ERROR'
 
+    def getnextisn(self,thisisn):
+        try:
+            for i in range(3):
+                r, s = self.sfis.SFIS_GetVersion(thisisn, 'ITEMINFO')
+                logV(r, repr(s))
+                if r == '1':
+                    break
+                else:
+                    logV('retry')
+            if r == '1':
+                items = s.split(chr(127))
+                if len(items) > 4 and len(items[4]) > 0:
+                    return items[4]
+            return 'ERROR'
+        except Exception, e:
+            logE(Exception, e)
+            return 'ERROR'
+
     def get_config(self, isn):
         try:
             for i in range(3):
@@ -531,7 +574,7 @@ class SFIS():
                 if r == '1':
                     break
                 else:
-                    print 'retry'
+                    logV('retry')
             if r == '1':
                 items = s.split(chr(127))
                 if len(items) > 1 and len(items[1]) == 16:

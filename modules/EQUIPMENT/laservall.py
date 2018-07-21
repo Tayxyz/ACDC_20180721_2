@@ -27,7 +27,7 @@ class laservall:
     def etch(self,argv):
         cmd='<L%s><D1,%s><D2,%s><D3,%s><X>'%(argv['m'],argv['isn'],argv['qrc'],argv['pairing'])
         cmd=cmd.encode("ascii")
-        r, v = self.io.wr(cmd, '<XE>',timeout=30)
+        r, v = self.io.wr(cmd, '<XE>',timeout=30) #start to lase
         logV(r, repr(v))
         return r,v
 
@@ -39,6 +39,7 @@ class laservall:
         return r, v
 
     def rotatein(self,argv):
+        #send directions
         r, v = self.io.wr('<I>', '<W>', timeout=30)
         logV(r, repr(v))
         return r

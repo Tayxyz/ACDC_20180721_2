@@ -54,14 +54,15 @@ class worker(multiprocessing.Process):
             t0 = time.time()
             DATA.version = VERSION
             objs={}
-            for obj in self.script.get_initial():
-                objs[obj["obj"]] = getObject(obj["class"], obj)
+            for obj in self.script.get_initial(): #get initial's content
+                objs[obj["obj"]] = getObject(obj["class"], obj) # and handle
             logV( 'initial cost:',time.time()-t0)
             DATA.objs=objs
-            process=self.script.get_process()
+            process=self.script.get_process() #get process's content
             steps=len(process)
             logV('process len=',steps)
             self.result_queue.put(str(self.id) + '&'+str(steps)+'&t&\1*')
+            logV(str(self.id) + '&'+str(steps)+'&t&\1*')
             skip_flag = False
             for step in process:
                 logV('\n#####', step['name'], '#####')

@@ -1,0 +1,123 @@
+
+{
+	"initial": [
+	{"obj": "sfis","class": "SFIS.SFIS.SFIS"},
+	{"obj": "diag","class": "COMMON.dialog.dialog"},
+	{"obj": "basic_info","class": "COMMON.basic_info.BasicInfo"},
+	{"obj": "EMU8", "class": "EQUIPMENT.Chroma80611.Chroma80611", "address": "GPIB0::8::0"},
+	{"obj": "DCLOAD", "class": "EQUIPMENT.ChromaC63102.Chroma63102", "address": "GPIB0::7::0"},
+	{"obj": "PM", "class": "EQUIPMENT.Chroma66200.Chroma66200", "address": {"1": "GPIB0::10::0","2": "GPIB0::11::0","3":"GPIB0::12::0","4": "GPIB0::13::0","5":"GPIB0::14::0","6":"GPIB0::15::0"}},
+	{"obj": "ACSOURCE", "class": "EQUIPMENT.Chroma61600.Chroma61600", "address": "GPIB0::30::0"},
+	{"obj": "RELAY1", "class": "EQUIPMENT.ADlink7320.ADlink7320", "card_number": "1"},
+	{"obj": "RELAY2", "class": "EQUIPMENT.ADlink7320.ADlink7320", "card_number": "0"},
+	{"obj": "FIXTURE","class": "COMMON.rs232_interface.RS232","COM":"COM46","baudrate":"9600"},
+	{"obj": "ACDC","class": "PROJECTS.BM.SWITCH.MLB_SWITCH_ACDC.ACDC","COM": {"1": "COM23","2": "COM24","3": "COM25","4": "COM26","5": "COM27","6": "COM28"},"baudrate":"115200"}
+	],
+
+
+	"locks":[
+	    {"name":"lockGPIB"},
+	    {"name":"lockSFIS"}
+	],
+
+	"barriers":[
+	    {"name":"barrierFixture"},
+	    {"name":"barrierRelay"},
+	    {"name":"barrierDCLOAD"},
+	    {"name":"barrierDCLOAD1"},
+	    {"name":"barrierEMU"},
+	    {"name":"barrierEMU1"},
+	    {"name":"barrierACSOURCE"}
+	],
+
+
+
+	"process":[
+		{"name":"SFIS_LOGIN_DB","obj" : "sfis","action": "SFIS_LOGIN_DB","lock":"lockSFIS"},
+	    {"name":"SFIS_CHECK_ROUTE","obj" : "sfis","action": "SFIS_CHECK_ROUTE","failstop":"YES1","lock":"lockSFIS"},
+	    {"name":"BUILD_PHASE","obj" : "sfis","action": "BUILD_PHASE","lock":"lockSFIS"},
+	     {"name":"TEST_READ_FACTORY_CONFIG_MLB","obj" : "sfis","action": "TEST_READ_FACTORY_CONFIG","lock":"lockSFIS"},
+
+		{"name":"BASIC_INFO","obj" : "basic_info","action": "basic_info"},
+
+	    {"name":"TEST_FIXTURE_IN","obj" : "FIXTURE","action": "sendCmd",
+            "cmd":"$in#","end":"in pass\r\n","has":"pass","timeout":"5","barrier":"barrierFixture"},
+
+
+        {"name":"RELAYTOCN","obj":"ACDC","action": "set_relay", "mode": "cn","barrier":"barrierRelay"},
+        {"name":"WAIT","obj" : "basic_info","action": "wait","seconds":"3"},
+		{"name":"ACON","obj" : "ACDC","action": "acon","config":"YES","barrier":"barrierACSOURCE"},
+		{"name":"WAIT","obj" : "basic_info","action": "wait","seconds":"5"},
+
+		#   ~~~~~~~~~~~C N~~~~~~~~~~~~~~
+        {"name":"TEST_PAD_DETECT_STATE","obj" : "ACDC","action": "test_pad_detect_state"},
+		{"name":"TEST_12V_READ_DC","obj" : "ACDC","action": "test_12v_read_dc"},
+		{"name":"TEST_LOAD_REGULATION_120V_0MA_C_N","obj" : "ACDC","action": "test_load_regulation_120v_0ma_cn","barrier":"barrierDCLOAD","lock":"lockGPIB"},
+		{"name":"TEST_LOAD_REGULATION_120V_500MA_C_N","obj" : "ACDC","action": "test_load_regulation_120v_500ma_cn","barrier":"barrierDCLOAD1","lock":"lockGPIB"},
+		{"name":"TEST_DYNAMIC_LOAD_120V_C_N","obj" : "ACDC","action": "test_dynamic_load_120v_cn","barrier":"barrierEMU","lock":"lockGPIB"},
+		{"name":"TEST_NO_LOAD_POWER_120V_0MA_C_N","obj" : "ACDC","action": "test_noload_power_120v_0ma_cn","barrier":"barrierDCLOAD","lock":"lockGPIB"},
+		{"name":"TEST_EFFICIENCY_120V_500MA_C_N","obj" : "ACDC","action": "test_efficiency_120v_500ma_cn","barrier":"barrierDCLOAD1","lock":"lockGPIB"},
+		{"name":"TEST_RIPPLE_120V_0MA_C_N","obj" : "ACDC","action": "test_ripple_120v_0ma_cn","barrierload":"barrierDCLOAD","barrieremu":"barrierEMU","lock":"lockGPIB"},
+		{"name":"TEST_RIPPLE_120V_500MA_C_N","obj" : "ACDC","action": "test_ripple_120v_500ma_cn","barrierload":"barrierDCLOAD1","barrieremu":"barrierEMU1","lock":"lockGPIB"},
+		{"name":"TEST_OCP_120V_C_N","obj" : "ACDC","action": "test_ocp_120v_cn","barrier":"barrierDCLOAD","lock":"lockGPIB"},
+		#   ~~~~~~~~~~~C N~~~~~~~~~~~~~~
+
+		{"name":"ACOFF","obj":"ACDC","action":"acoff","barrier":"barrierACSOURCE"},
+		{"name":"WAIT","obj" : "basic_info","action": "wait","seconds":"5"},
+		{"name":"CLOSEDCLOAD","obj":"ACDC","action":"closedcload","barrier":"barrierDCLOAD"},
+		{"name":"RELAYTOT1N","obj" : "ACDC","action": "set_relay", "mode": "t1n","barrier":"barrierRelay"},
+		{"name":"WAIT","obj" : "basic_info","action": "wait","seconds":"3"},
+		{"name":"ACON","obj":"ACDC","action":"acon","barrier":"barrierACSOURCE"},
+		{"name":"WAIT","obj" : "basic_info","action": "wait","seconds":"5"},
+
+		#   ~~~~~~~~~~~T 1 N~~~~~~~~~~~~~~
+		{"name":"TEST_LOAD_REGULATION_120V_0MA_T1_N","obj" : "ACDC","action": "test_load_regulation_120v_0ma_t1n","barrier":"barrierDCLOAD","lock":"lockGPIB"},
+		{"name":"TEST_LOAD_REGULATION_120V_500MA_T1_N","obj" : "ACDC","action": "test_load_regulation_120v_500ma_t1n","barrier":"barrierDCLOAD1","lock":"lockGPIB"},
+		{"name":" TEST_DYNAMIC_LOAD_120V_T1_N","obj" : "ACDC","action": "test_dynamic_load_120v_t1n","barrierload":"barrierDCLOAD","barrieremu":"barrierEMU","lock":"lockGPIB"},
+		#   ~~~~~~~~~~~T 1 N~~~~~~~~~~~~~~
+
+		{"name":"ACOFF","obj":"ACDC","action":"acoff","barrier":"barrierACSOURCE"},
+		{"name":"WAIT","obj" : "basic_info","action": "wait","seconds":"5"},
+		{"name":"CLOSEDCLOAD","obj":"ACDC","action":"closedcload","barrier":"barrierDCLOAD"},
+		{"name":"RELAYTOT2N","obj":"ACDC","action":"set_relay","mode": "t2n","barrier":"barrierRelay"},
+		{"name":"WAIT","obj" : "basic_info","action": "wait","seconds":"3"},
+		{"name":"ACON","obj":"ACDC","action":"acon","barrier":"barrierACSOURCE"},
+		{"name":"WAIT","obj" : "basic_info","action": "wait","seconds":"5"},
+
+		#   ~~~~~~~~~~~T 2 N~~~~~~~~~~~~~~
+		{"name":"TEST_LOAD_REGULATION_120V_0MA_T2_N","obj" : "ACDC","action": "test_load_regulation_120v_0ma_t2n","barrier":"barrierDCLOAD","lock":"lockGPIB"},
+		{"name":"TEST_LOAD_REGULATION_120V_500MA_T2_N","obj" : "ACDC","action": "test_load_regulation_120v_500ma_t2n","barrier":"barrierDCLOAD1","lock":"lockGPIB"},
+		{"name":"TEST_DYNAMIC_LOAD_120V_T2_N","obj" : "ACDC","action": "test_dynamic_load_120v_t2n","barrierload":"barrierDCLOAD","barrieremu":"barrierEMU","lock":"lockGPIB"},
+		#   ~~~~~~~~~~~T 2 N~~~~~~~~~~~~~~
+
+		{"name":"ACOFF","obj":"ACDC","action":"acoff","barrier":"barrierACSOURCE"},
+		{"name":"WAIT","obj" : "basic_info","action": "wait","seconds":"5"},
+		{"name":"CLOSEDCLOAD","obj":"ACDC","action":"closedcload","barrier":"barrierDCLOAD"},
+		{"name":"RELAYTOCTN","obj" : "ACDC","action": "set_relay", "mode": "ctn","barrier":"barrierRelay"},
+		{"name":"WAIT","obj" : "basic_info","action": "wait","seconds":"3"},
+		{"name":"ACON","obj":"ACDC","action":"acon","barrier":"barrierACSOURCE"},
+		{"name":"WAIT","obj" : "basic_info","action": "wait","seconds":"4"},
+
+		#   ~~~~~~~~~~~C T N~~~~~~~~~~~~~~
+		{"name":"TEST_AC_POWER_RELAY_SET_DIMMER_50","obj" : "ACDC","action": "test_acpower_relay_setdimmer_50","lock":"lockGPIB"},
+		{"name":"TEST_3WAY_STATE_RELAY_SET_DIMMER_50","obj" : "ACDC","action": "test_3way_state_relay_setdimmer_50"},
+		{"name":"TEST_AC_POWER_RELAY_RESET_DIMMER_50","obj" : "ACDC","action": "test_acpower_relay_resetdimmer_50","lock":"lockGPIB"},
+		{"name":"TEST_3WAY_STATE_RELAY_RESET_DIMMER_50","obj" : "ACDC","action": "test_3way_state_relay_resetdimmer_50"},
+		{"name":"TEST_DIMMER_0","obj" : "ACDC","action": "test_dimmer0"},
+		{"name":"TEST_NEUTRAL_DET","obj" : "ACDC","action": "test_neutral_det"},
+		{"name":"TEST_ACDC_DISABLE","obj" : "ACDC","action": "test_acdc_disable"},
+		#   ~~~~~~~~~~~C T N~~~~~~~~~~~~~~
+
+		{"name":"RELAYTOOFF","obj" : "ACDC","action": "set_relay", "mode": "off","barrier":"barrierRelay"},
+		{"name":"ACOFF","obj":"ACDC","action":"acoff","barrier":"barrierACSOURCE"},
+		{"name":"CLOSEDEVICE","obj" : "ACDC","action": "closeDevice","barrieremu":"barrierEMU","barrierload":"barrierDCLOAD","lock":"lockGPIB"},
+		{"name":"WAIT","obj" : "basic_info","action": "wait","seconds":"3"},
+
+        {"name":"TEST_FIXTURE_OUT","obj" : "FIXTURE","action": "sendCmd",
+            "cmd":"$out#","end":"out pass\r\n","has":"pass","timeout":"5","barrier":"barrierFixture"},
+
+        {"name":"SFIS_UPLOAD_TEST_RESULT","obj" : "sfis","action": "SFIS_WRITE_RESULT","noskip":"YES","lock":"lockSFIS"},
+        {"name":"SFIS_LOGOUT_DB","obj" : "sfis","action": "SFIS_LOGOUT_DB","noskip":"YES","lock":"lockSFIS"},
+        {"name":"END_STEPS","obj" : "basic_info","action": "end_steps","noskip":"YES","lock":"lockSFIS"}
+	]
+}

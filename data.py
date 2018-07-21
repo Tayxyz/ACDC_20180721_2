@@ -108,6 +108,7 @@ class data():
         else:
             onoffline='OFF_LINE'
         logV( DATA.PROJECT, DATA.BUILD_EVENT, DATA.STATION_NAME, DATA.DEVICE_ID, onoffline)
+        # BM    EVT     MLB_SWITCH_MAIN_ACDC    318288    OFF_LINE
 
         if self.LOG_PATH.endswith(os.sep):
             self.LOG_PATH = self.LOG_PATH[:self.LOG_PATH.rindex(os.sep)]
@@ -243,6 +244,7 @@ class data():
         data.__time = time.time()
 
     def getlimits(self):
+        # handle upper and lower limit
         self.limits={}
         try:
             with open('limits.csv') as f:
@@ -327,7 +329,7 @@ class data():
         DATA.op('TEST,STATUS,VALUE,U_LIMIT,L_LIMIT', ui=False)
         # 'TEST_DATE_TIME',  # start time
         DATA.op('TEST_DATE_TIME,0,' + datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S') + ',N/A,N/A')
-        cf = ConfigParser.ConfigParser()
+        cf = ConfigParser.ConfigParser()  #the class is about to handle .ini
         cf.read(DATA.setting_name)
 
         DATA.PROJECT = cf.get('basic_info', 'PROJECT')
@@ -338,10 +340,10 @@ class data():
         DATA.LINE_NUMBER = cf.get('basic_info', 'LINE_NUMBER')
         DATA.op('LINE_NUMBER' + ',0,' + DATA.LINE_NUMBER + ',N/A,N/A')
         DATA.STATION_ONLINE = cf.get('basic_info', 'STATION_ONLINE')
-        if DATA.STATION_ONLINE=='YES':
-            DATA.op('STATION_ONLINE' + ',0,' + '1' + ',N/A,N/A')
-        else:
-            DATA.op('STATION_ONLINE' + ',0,' + '0' + ',N/A,N/A')
+        # if DATA.STATION_ONLINE=='YES':
+        #     DATA.op('STATION_ONLINE' + ',0,' + '1' + ',N/A,N/A')
+        # else:
+        #     DATA.op('STATION_ONLINE' + ',0,' + '0' + ',N/A,N/A')
         DATA.BUILD_EVENT = cf.get('basic_info', 'BUILD_EVENT')
         DATA.op('BUILD_EVENT' + ',0,' + DATA.BUILD_EVENT + ',N/A,N/A')
         DATA.FIXTURE_ID = cf.get('basic_info', 'FIXTURE_ID')

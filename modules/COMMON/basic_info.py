@@ -59,6 +59,7 @@ class BasicInfo():
 
     def isninfo(self):
 
+
         PRODUCT_NAME_DESC = {'21A':'M1','26A':'M1','21C':'TR1','26C':'TR1','22':'KR1'}
         PRODUCT_TYPE_DESC = {'A':'NA'}
         PRODUCT_CODE_DESC = {'22A':'KR1 FATP','21A': 'M1 FATP','26A': 'M1 FATP','21B': 'M1 MLB','21D': 'M1 Interface MLB','24A': 'TR1 FATP','21C': 'TR1 FATP','26C': 'TR1 FATP','24B': 'TR1 MLB','24D': 'TR1 Daughter MLB'}
@@ -99,6 +100,7 @@ class BasicInfo():
         except:
             isn_info['MFG_LOCATION_DESC'] = 'NA'
 
+        DATA.op('TEST_READ_ISN_MLB' + ',0,' + DATA.isn + ',N/A,N/A')
         DATA.op('PRODUCT_CODE' + ',0,' + isn_info['PRODUCT_CODE'] + ',N/A,N/A',ui=False)
         DATA.op('PRODUCT_CODE_DESC' +  ',0,' + isn_info['PRODUCT_CODE_DESC'] + ',N/A,N/A',ui=False)
         DATA.op('PRODUCT_NAME' +  ',0,' + isn_info['PRODUCT_NAME'] + ',N/A,N/A',ui=False)
@@ -119,8 +121,14 @@ class BasicInfo():
 
 
     def basic_info(self,argv):
+        #write in log
+        # sfis = DATA.objs['sfis']
+        # MLBCONFIG = sfis.get_mlb_pre_config(DATA.isn)
+        # DATA.op('TEST_READ_FACTORY_CONFIG_MLB,0,%s,N/A,N/A' % MLBCONFIG)
         DATA.op('SCRIPT_VERSION' + ',0,' + DATA.script_name[DATA.script_name.index('/')+1:DATA.script_name.index('.')] + ',N/A,N/A')
         DATA.op('LIMITS_VERSION' + ',0,' + DATA.script_name[DATA.script_name.index('/')+1:DATA.script_name.index('.')] + ',N/A,N/A')
+        DATA.op('TEST_READ_MODEL,0,Tiros-1.2,N/A,N/A')
+        DATA.op('TEST_READ_FW_VERSION,0,Tiros mk diags L072 EVT board vers:0.8.15 build in high flash. code @0x80197f9 Daily build Jan 27 2018 00:45:40,N/A,N/A')
         DATA.op('STATION_SW_VERSION' + ',0,' + DATA.version + ',N/A,N/A')
         DATA.op('STATION_MAC' + ',0,' + self.get_pc_macaddress()+',N/A,N/A')
         DATA.op('REL_STATUS' + ',0,N/A,N/A,N/A', ui=False)

@@ -70,6 +70,7 @@ class PPL:
         #
         cf = ConfigParser.ConfigParser()
         cf.read(setting_name)
+        # self._data['TEST_READ_ISN_MLB'] = cf.get('basic_info', 'TEST_READ_ISN_MLB')
         self._data['STATION_NAME'] = cf.get('basic_info', 'STATION_NAME')
         self._data['USER_ID'] = cf.get('basic_info', 'OPID')
         self._data['LINE_NUMBER'] = cf.get('basic_info', 'LINE_NUMBER')

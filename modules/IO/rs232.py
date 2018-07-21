@@ -34,6 +34,7 @@ class RS232:
             logV(self.comnub, 'connected')
         except Exception, e:
             logE(Exception, e)
+            logE(self.comnub, 'connected fail')
 
     def connect(self):
         self.com = serial.Serial(self.comnub, self.baudrate, parity=self.parity, timeout=0)

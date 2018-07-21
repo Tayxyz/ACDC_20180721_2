@@ -1,6 +1,6 @@
 
-script='scripts/BM_fix_led_bincode.script'
-setting = 'setting/Setting.ini'
+script='scripts/MLB_SWITCH_ACDC.script'
+setting = 'setting/Settingoffline.ini'
 
 import re,json
 import os,shutil

@@ -8,9 +8,9 @@ class script():
                 if line.strip().startswith('#') or line.strip().startswith('//'):
                     continue
                 else:
-                    json_str = json_str + line
+                    json_str = json_str + line  # read script
         # print repr(json_str)
-        self.script_obj = json.loads(json_str, strict=False)
+        self.script_obj = json.loads(json_str, strict=False) # string to dict
 
     def get_all(self):
         return self.script_obj
